@@ -27,6 +27,7 @@ namespace WatchMate_API.Implementation
             Video = new VideoRepository(_dbContext, _httpContextAccessor);
             Transaction = new TransctionRepository(_dbContext, _httpContextAccessor);
             Account = new AccountRepository(_dbContext);
+            Withdraw = new WithdrawRepository(_dbContext, _httpContextAccessor);
 
         }
         public IUserRepository User { get; private set; }
@@ -38,6 +39,8 @@ namespace WatchMate_API.Implementation
         public IVideoRepository Video { get; private set; }
         public ITransctionRepository Transaction { get; private set; }
         public IAccountRepository Account { get; private set; }
+
+        public IWithdrawRepository Withdraw { get; private set; }
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {

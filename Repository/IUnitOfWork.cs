@@ -13,6 +13,7 @@ namespace WatchMate_API.Repository
         IVideoRepository Video { get; }
         ITransctionRepository Transaction { get; }
         IAccountRepository Account { get; }
+        IWithdrawRepository Withdraw { get; }
 
 
 

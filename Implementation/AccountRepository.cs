@@ -48,7 +48,7 @@ namespace WatchMate_API.Implementation
         public AccountBalance GetAccountInfoCustomerId(int customerId)
         {
             return _dbContext.AccountBalance
-                             .FirstOrDefault(c => c.CustomerId == customerId);
+                             .FirstOrDefault(c => c.CustomerId == customerId && c.IsActive==1);
         }
 
 

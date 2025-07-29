@@ -139,7 +139,8 @@ namespace WatchMate_API.Controllers
                 packageRequest.UpdatedBy = userId;
                 await _unitOfWork.UserPackages.UpdateAsync(packageRequest);
 
-                // ✅ Add Transaction Record
+
+           
                 var transactionRecord = new Transctions
                 {
                     TransactionType = 4, 

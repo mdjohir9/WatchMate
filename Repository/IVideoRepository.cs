@@ -7,5 +7,7 @@ namespace WatchMate_API.Repository
         Task<string> SaveVideoAsync(IFormFile videoFile, HttpRequest request);
         Task<IEnumerable<object>> GetCustomerAdVideos(int customerId);
 
+
+
     }
 }

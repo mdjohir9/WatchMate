@@ -200,21 +200,21 @@ namespace WatchMate_API.Implementation
 
 
                 // Loan
-                menu.Add(new
-                {
-                    path = "",
-                    title = "Loan",
-                    iconType = "nzIcon",
-                    iconTheme = "outline",
-                    icon = "stock",
-                    submenu = new List<object>
-            {
-                new { path = "/loan/loan-Application", title = "Loan Application", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "/loan/customer-loan-request", title = "Application List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "/loan/customer-loan-list", title = "Loan List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "/loan/instalment", title = "Instalments", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() }
-            }
-                });
+            //    menu.Add(new
+            //    {
+            //        path = "",
+            //        title = "Loan",
+            //        iconType = "nzIcon",
+            //        iconTheme = "outline",
+            //        icon = "stock",
+            //        submenu = new List<object>
+            //{
+            //    new { path = "/loan/loan-Application", title = "Loan Application", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new { path = "/loan/customer-loan-request", title = "Application List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new { path = "/loan/customer-loan-list", title = "Loan List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new { path = "/loan/instalment", title = "Instalments", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() }
+            //}
+                //});
             }
             if (dataAccessLevel == 3)
             {
