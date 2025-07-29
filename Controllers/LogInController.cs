@@ -89,7 +89,6 @@ namespace WatchMate_API.Controllers
                         UserRoleID = u.UserRoleID,  
                         RoleName = userRole.UserRoleName,
                         Email = u.Email,
-                        IsGuestUser = u.IsGuestUser,
                         CustomerID = Customer.CustomerId.ToString(),
                         AdditionalPermissions = u.AdditionalPermissions,
                         RemovedPermissions = u.RemovedPermissions,

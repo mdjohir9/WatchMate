@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WatchMate_API.DTO.Customer;
 using WatchMate_API.Entities;
 using WatchMate_API.Repository;
 
@@ -37,6 +38,29 @@ namespace WatchMate_API.Implementation
 
             return $"WTM{nextNumber}";
         }
+        public async Task<IEnumerable<CustommerIdAndNameDTO>> GetAllCustommerSummaryAsync(int? customerId)
+        {
+            var query = _dbContext.CustomerInfo.AsQueryable();
 
+            if (customerId.HasValue)
+            {
+                query = query.Where(c => c.CustomerId == customerId.Value);
+            }
+            //else
+            //{
+            //    query = query.Where(c => (c.IsActive == null || c.IsActive == false));
+
+            //}
+
+            var customers = await query
+                .Select(c => new CustommerIdAndNameDTO
+                {
+                    CustomerID = c.CustomerId,
+                    FullName = c.FullName
+                })
+                .ToListAsync();
+
+            return customers;
+        }
     }
 }

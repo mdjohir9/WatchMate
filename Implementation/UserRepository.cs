@@ -138,19 +138,19 @@ namespace WatchMate_API.Implementation
                     icon = "appstore-add",
                     submenu = new List<object>()
                 });
-                menu.Add(new
-                {
-                    path = "",
-                    title = "About Me",
-                    iconType = "nzIcon",
-                    iconTheme = "outline",
-                    icon = "user",
-                    submenu = new List<object>
-            {
-                new { path = "custommer/add", title = "Add Personnel Info", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new  { path = "custommer/profile",  title = "My Profile",   iconType = "",  icon = "", iconTheme = "",  submenu = new List<object>() },
-                    }
-                });
+            //    menu.Add(new
+            //    {
+            //        path = "",
+            //        title = "About Me",
+            //        iconType = "nzIcon",
+            //        iconTheme = "outline",
+            //        icon = "user",
+            //        submenu = new List<object>
+            //{
+            //    new { path = "custommer/add", title = "Add Personnel Info", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new  { path = "custommer/profile",  title = "My Profile",   iconType = "",  icon = "", iconTheme = "",  submenu = new List<object>() },
+            //        }
+            //    });
                 // Wallet
                 menu.Add(new
                 {
@@ -161,8 +161,8 @@ namespace WatchMate_API.Implementation
                     icon = "wallet",
                     submenu = new List<object>
             {
-                new { path = "wallet/recharge", title = "Recharge", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "wallet/all-recharge", title = "Recharge List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "wallet/recharge", title = "Recharge", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "wallet/all-recharge", title = "Recharge List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "wallet/withdraw", title = "Withdraw", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "wallet/withdraw-bye-customer", title = "Withdraw List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
             }
