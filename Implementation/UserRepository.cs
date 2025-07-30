@@ -316,6 +316,7 @@ namespace WatchMate_API.Implementation
                 new { path = "settings/company", title = "Company", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "settings/paymentMethod", title = "Payment Method", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "settings/recharge-accounts", title = "Recharge Account", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                new { path = "settings/add-video", title = "Add Video", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
             }
                 });
 
