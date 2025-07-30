@@ -1,4 +1,5 @@
-﻿using WatchMate_API.Entities;
+﻿using WatchMate_API.DTO;
+using WatchMate_API.Entities;
 
 namespace WatchMate_API.Repository
 {
@@ -6,5 +7,9 @@ namespace WatchMate_API.Repository
     {
         Task<int> GenerateUniqueAccountNumberAsync();
         AccountBalance GetAccountInfoCustomerId(int customerId);
+
+
+        AccountBalanceDTO GetAccountBalanceByCustomerId(int customerId);
+
     }
 }

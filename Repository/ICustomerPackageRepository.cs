@@ -6,7 +6,7 @@ namespace WatchMate_API.Repository
 {
     public interface ICustomerPackageRepository :IGenericRepository<CustomerPackage>
     {
-        Task<List<CustomerPackageDTO>> GetCustomerPackageByCustomerId(int customerId);
+        Task<List<CustomerPackageDTO>> GetCustomerPackageByCustomerId(int? customerId);
 
     }
 }

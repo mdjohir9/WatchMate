@@ -237,7 +237,7 @@ namespace WatchMate_API.Implementation
                     icon = "user",
                     submenu = new List<object>
             {
-                new { path = "custommer/add", title = "Add-Custommer", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "custommer/add", title = "Add-Custommer", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "custommer/list", title = "Custommer List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() }
             }
                 });
@@ -288,21 +288,21 @@ namespace WatchMate_API.Implementation
             }
                 });
 
-                menu.Add(new
-                {
-                    path = "",
-                    title = "Loan",
-                    iconType = "nzIcon",
-                    iconTheme = "outline",
-                    icon = "stock",
-                    submenu = new List<object>
-            {
-                new { path = "/loan/loan-Application", title = "Loan Application", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "/loan/loan-request-list", title = "Loan Application List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "/loan/all-instalmets", title = "Upcoming Instalments", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "/loan/loan-list", title = "Loan List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() }
-            }
-                });
+            //    menu.Add(new
+            //    {
+            //        path = "",
+            //        title = "Loan",
+            //        iconType = "nzIcon",
+            //        iconTheme = "outline",
+            //        icon = "stock",
+            //        submenu = new List<object>
+            //{
+            //    new { path = "/loan/loan-Application", title = "Loan Application", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new { path = "/loan/loan-request-list", title = "Loan Application List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new { path = "/loan/all-instalmets", title = "Upcoming Instalments", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new { path = "/loan/loan-list", title = "Loan List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() }
+            //}
+            //    });
 
                 menu.Add(new
                 {

@@ -17,13 +17,13 @@ namespace WatchMate_API.Implementation
             _dbContext = dbContext;
             _httpContextAccessor = httpContextAccessor;
         }
-        public async Task<List<CustomerPackageDTO>> GetCustomerPackageByCustomerId(int customerId)
+        public async Task<List<CustomerPackageDTO>> GetCustomerPackageByCustomerId(int? customerId = null)
         {
             var query = from cp in _dbContext.CustomerPackage
                         join ci in _dbContext.CustomerInfo on cp.CustomerId equals ci.CustomerId
                         join p in _dbContext.Package on cp.PackageId equals p.PackageId
                         join pm in _dbContext.PaymentMethod on cp.PayMethodID equals pm.PayMethodID
-                        where cp.CustomerId == customerId
+                        where !customerId.HasValue || cp.CustomerId == customerId
                         select new CustomerPackageDTO
                         {
                             Id = cp.Id,
@@ -44,6 +44,7 @@ namespace WatchMate_API.Implementation
 
             return await query.ToListAsync();
         }
+
 
 
     }

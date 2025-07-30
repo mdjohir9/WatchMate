@@ -28,13 +28,12 @@ namespace WatchMate_API.Controllers
 
         [HttpGet]
         [Route("userAccount/balance/{customerId}")]
-        public async Task<IActionResult> GetAccountBalance(int customerId)
+        public IActionResult GetAccountBalance(int customerId)
         {
             try
             {
-
-                var account =  _unitOfWork.Account.GetAccountInfoCustomerId(customerId);
-                if (account == null)
+                var result = _unitOfWork.Account.GetAccountBalanceByCustomerId(customerId);
+                if (result == null)
                 {
                     return NotFound(new
                     {
@@ -43,17 +42,7 @@ namespace WatchMate_API.Controllers
                     });
                 }
 
-                return Ok(new
-                {
-                    StatusCode = 200,
-                    message = "Account balance retrieved successfully.",
-                    data = new
-                    {
-                        CustomerId = account.CustomerId,
-                        Balance = account.BalanceAmount,
-                        LastUpdated = account.UpdatedAt
-                    }
-                });
+                return Ok(new { StatusCode = 200, message = "Success",  data = result });
             }
             catch (Exception ex)
             {

@@ -80,18 +80,18 @@ namespace WatchMate_API.Controllers
             }
         }
 
-        [HttpGet("get-customer-package/{customerId}")]
-        public async Task<IActionResult> GetCustomerPackages(int customerId)
+        [HttpGet("get-customer-package")]
+        public async Task<IActionResult> GetCustomerPackages([FromQuery] int? customerId)
         {
             try
             {
-                string cacheKey = $"customer_package_{customerId}";
+                string cacheKey = $"customer_package_{(customerId.HasValue ? customerId.ToString() : "all")}";
                 if (!_cache.TryGetValue(cacheKey, out List<CustomerPackageDTO> cachedData))
                 {
                     var result = await _unitOfWork.UserPackages.GetCustomerPackageByCustomerId(customerId);
 
                     if (result == null || !result.Any())
-                        return NotFound(new { StatusCode = 404, message = "Customer package not found." });
+                        return NotFound(new { StatusCode = 404, message = "Customer package(s) not found." });
 
                     _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
                     return Ok(new { StatusCode = 200, message = "Success", data = result });
@@ -104,6 +104,7 @@ namespace WatchMate_API.Controllers
                 return StatusCode(500, new { StatusCode = 500, message = "Error retrieving customer packages", error = ex.Message });
             }
         }
+
 
         [HttpPut("package/approve/{id}")]
         public async Task<IActionResult> ApprovePackageRequest(int id, byte Status, int userId)
