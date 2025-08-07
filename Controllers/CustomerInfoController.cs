@@ -73,7 +73,7 @@ namespace WatchMate_API.Controllers
             }
         }
 
-        [HttpGet("customer{id}")]
+        [HttpGet("customer/{id}")]
         public async Task<IActionResult> GetCustomerById(int id)
         {
             try
@@ -172,15 +172,15 @@ namespace WatchMate_API.Controllers
         {
             try
             {
-                var customer = await _unitOfWork.CustomerInfo.GetByIdAsync(id);
-                if (customer == null)
-                    return NotFound(new { StatusCode = 404, message = "Customer not found" });
+                //var customer = await _unitOfWork.CustomerInfo.GetByIdAsync(id);
+                //if (customer == null)
+                //    return NotFound(new { StatusCode = 404, message = "Customer not found" });
 
-                customer.Deleted = true;
-                customer.DeletedAt = DateTime.Now;
-                customer.DeletedBy = 1; // Replace with logged-in user ID
+                //customer.Deleted = true;
+                //customer.DeletedAt = DateTime.Now;
+                //customer.DeletedBy = 1; // Replace with logged-in user ID
 
-                await _unitOfWork.CustomerInfo.UpdateAsync(customer);
+                await _unitOfWork.CustomerInfo.DeleteAsync(id);
                 await _unitOfWork.Save();
 
                 _cache.Remove("all_customers");

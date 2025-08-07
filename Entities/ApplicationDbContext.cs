@@ -16,6 +16,7 @@ namespace WatchMate_API.Entities
         public DbSet<Transctions> Transctions { get; set; }
         public DbSet<TransactionType> TransactionType { get; set; }
         public DbSet<PaymentMethod> PaymentMethod { get; set; }
+        public DbSet<PaymentAccount> PaymentAccount { get; set; }
         public DbSet<AccountBalance> AccountBalance { get; set; }
         public DbSet<Withdraw> Withdraw { get; set; }
 

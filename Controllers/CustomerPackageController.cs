@@ -30,7 +30,6 @@ namespace WatchMate_API.Controllers
 
         [HttpGet]
         [Route("packages")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> GetUserPackages()
         {
             try

@@ -14,6 +14,7 @@ namespace WatchMate_API.Repository
         ITransctionRepository Transaction { get; }
         IAccountRepository Account { get; }
         IWithdrawRepository Withdraw { get; }
+        IPaymnetAccountRepository Payment { get; }
 
 
 

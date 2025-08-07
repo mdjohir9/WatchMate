@@ -37,6 +37,8 @@ namespace WatchMate_API.Controllers
             try
             {
                 string cacheKey = "packages";
+                var PaymentAccount = await _unitOfWork.Payment.GetAllPaymentAccountsAsync();
+
                 if (!_cache.TryGetValue(cacheKey, out List<Package> cachedPackages))
                 {
                     var packages = await _unitOfWork.Package.GetAllAsync();
@@ -45,10 +47,10 @@ namespace WatchMate_API.Controllers
 
                     var list = packages.ToList();
                     _cache.Set(cacheKey, list, TimeSpan.FromMinutes(1));
-                    return Ok(new { StatusCode = 200, message = "Success", data = list });
+                    return Ok(new { StatusCode = 200, message = "Success", data = list , paymentAccount = PaymentAccount });
                 }
 
-                return Ok(new { StatusCode = 200, message = "Success", data = cachedPackages });
+                return Ok(new { StatusCode = 200, message = "Success", data = cachedPackages, paymentAccount = PaymentAccount });
             }
             catch (Exception ex)
             {
@@ -57,7 +59,7 @@ namespace WatchMate_API.Controllers
         }
 
         [HttpGet]
-        [Route("package{id}")]
+        [Route("package/{id}")]
         public async Task<IActionResult> GetPackage(int id)
         {
             try
@@ -177,7 +179,7 @@ namespace WatchMate_API.Controllers
             try
             {
                 _unitOfWork.Package.DeleteAsync(id);
-                
+                await _unitOfWork.Save();
                 _cache.Remove("packages");
                 _cache.Remove($"package_{id}");
 

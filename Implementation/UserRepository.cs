@@ -251,8 +251,8 @@ namespace WatchMate_API.Implementation
                     icon = "wallet",
                     submenu = new List<object>
             {
-                new { path = "wallet/recharge", title = "Recharge", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "wallet/recharge-requests", title = "Recharge List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "wallet/recharge", title = "Recharge", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "wallet/recharge-requests", title = "Recharge List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "wallet/withdraw", title = "Withdraw", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "wallet/all-withdraw", title = "Withdraw List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
 

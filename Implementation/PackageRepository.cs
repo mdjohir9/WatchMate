@@ -1,4 +1,6 @@
-﻿using WatchMate_API.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using WatchMate_API.DTO;
+using WatchMate_API.Entities;
 using WatchMate_API.Repository;
 
 namespace WatchMate_API.Implementation
