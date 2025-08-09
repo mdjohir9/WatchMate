@@ -22,7 +22,7 @@ namespace WatchMate_API.Implementation
                 .Where(p => p.IsActive == true) // Optional: Filter active accounts only
                 .Select(p => new PaymentAccountDTO
                 {
-                    Id = p.Id,
+                    Id = p.PayAcId,
                     BankOrWalletName = p.BankOrWalletName,
                     AccountName = p.AccountName,
                     AccountNumber = p.AccountNumber,

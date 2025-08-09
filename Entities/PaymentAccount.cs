@@ -7,7 +7,7 @@ namespace WatchMate_API.Entities
     {
         [Key]
         [Required]
-        public int Id { get; set; }
+        public int PayAcId { get; set; }
 
         [Required]
         public string? BankOrWalletName { get; set; }

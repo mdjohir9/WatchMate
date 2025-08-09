@@ -33,8 +33,8 @@ namespace WatchMate_API.Entities
 
         [ForeignKey("PackageId")]
         public virtual Package Package { get; set; }
-        public int? PayMethodID { get; set; }
-        [ForeignKey("PayMethodID")]
-        public virtual PaymentMethod? PaymentMethod { get; set; }
+        public int? PayAcId { get; set; }
+        [ForeignKey("PayAcId")]
+        public virtual PaymentAccount? PaymentAccount { get; set; }
     }
 }

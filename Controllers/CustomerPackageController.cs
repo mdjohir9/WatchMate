@@ -147,7 +147,7 @@ namespace WatchMate_API.Controllers
                     Amount = packageRequest.PackagePrice,
                     TransactionDate = DateTime.UtcNow,
                     UserId = packageRequest.CustomerId,
-                    PaytMethodID = packageRequest.PayMethodID ?? 0,
+                    PaytMethodID = packageRequest.PayAcId ?? 0,
                     Remarks = $"Package purchase approved for request ID {packageRequest.Id}"
                 };
                 await _unitOfWork.Transaction.AddAsync(transactionRecord);
@@ -201,7 +201,7 @@ namespace WatchMate_API.Controllers
                     Status = 0,
                     CreatedAt = DateTime.Now,
                     CreatedBy = dto.UserId,
-                    PayMethodID = dto.PayMethodID,
+                    PayAcId = dto.PayMethodID,
                     TransctionCode =dto.TransctionCode,
                 };
 
@@ -241,7 +241,7 @@ namespace WatchMate_API.Controllers
                 existing.Status = dto.Status;
                 existing.UpdatedAt = DateTime.Now;
                 existing.UpdatedBy=dto.UserId;
-                existing.PayMethodID = dto.PayMethodID;
+                existing.PayAcId = dto.PayMethodID;
 
                 await _unitOfWork.UserPackages.UpdateAsync(existing);
                 await _unitOfWork.Save();

@@ -22,7 +22,7 @@ namespace WatchMate_API.Implementation
             var query = from cp in _dbContext.CustomerPackage
                         join ci in _dbContext.CustomerInfo on cp.CustomerId equals ci.CustomerId
                         join p in _dbContext.Package on cp.PackageId equals p.PackageId
-                        join pm in _dbContext.PaymentMethod on cp.PayMethodID equals pm.PayMethodID
+                        join pm in _dbContext.PaymentAccount on cp.PayAcId equals pm.PayAcId
                         where !customerId.HasValue || cp.CustomerId == customerId
                         select new CustomerPackageDTO
                         {
@@ -38,8 +38,8 @@ namespace WatchMate_API.Implementation
                             TransctionCode = cp.TransctionCode,
                             PackageId = p.PackageId,
                             PackageName = p.PackageName,
-                            PayMethodID = cp.PayMethodID,
-                            PMName = pm.Name
+                            PayMethodID = cp.PayAcId,
+                            PMName = pm.BankOrWalletName
                         };
 
             return await query.ToListAsync();
