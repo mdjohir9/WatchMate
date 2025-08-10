@@ -178,7 +178,7 @@ namespace WatchMate_API.Implementation
                     submenu = new List<object>
             {
                 new { path = "userPackages/add-package", title = "Buy Packages", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "userPackages/package-list", title = "Packages List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                new { path = "userPackages/cutomer-package-list", title = "My Packages", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
 
             }
                 });
@@ -317,6 +317,7 @@ namespace WatchMate_API.Implementation
                 new { path = "settings/paymentMethod", title = "Payment Method", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "settings/recharge-accounts", title = "Recharge Account", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "settings/add-video", title = "Add Video", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                new { path = "settings/video-list", title = "Video List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
             }
                 });
 
