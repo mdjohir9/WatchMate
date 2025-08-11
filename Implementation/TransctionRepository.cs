@@ -153,8 +153,8 @@ namespace WatchMate_API.Implementation
                 .Where(l => l.Status == 1)
                 .CountAsync();
 
-            var disbursementAmount = await _dbContext.Transctions
-                .Where(t => t.TransactionType == 1)
+            var disbursementAmount = await _dbContext.Withdraw
+                .Where(t => t.IsApproved == true)
                 .SumAsync(t => (decimal?)t.Amount) ?? 0;
 
             var repaymentAmount = await _dbContext.Transctions
@@ -165,7 +165,7 @@ namespace WatchMate_API.Implementation
             {
                 TotalCustomers = totalCustomers,
                 TotalActivePackage = ActiveCustomerPackage,
-                //DisbursementAmount = disbursementAmount,
+                DisbursementAmount = disbursementAmount,
                 //RepaymentAmount = repaymentAmount
             };
         }

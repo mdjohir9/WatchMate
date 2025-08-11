@@ -178,6 +178,7 @@ namespace WatchMate_API.Controllers
         {
             try
             {
+                var check = _unitOfWork.Package.GetByIdAsync(id);
                 _unitOfWork.Package.DeleteAsync(id);
                 await _unitOfWork.Save();
                 _cache.Remove("packages");
