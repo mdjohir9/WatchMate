@@ -80,7 +80,43 @@ namespace WatchMate_API.Implementation
             return videos;
         }
 
+        public async Task<IEnumerable<object>> GetAdVideos()
+        {
+            var currentDate = DateTime.Now;
 
-   
+            var videos = await (
+                from v in _dbContext.AdVideo
+                where v.IsActive
+                select new
+                {
+                    v.AdVideoId,
+                    v.Title,
+                    v.VideoUrl,
+                    v.RewardPerView,
+                    v.StartDate,
+                    v.EndDate,
+                    v.CreatedAt,
+                    PackageNames = (
+                        from p in _dbContext.Package
+                        where ("," + v.PackageIds + ",").Contains("," + p.PackageId + ",")
+                        select p.PackageName
+                    ).ToList()
+                }
+            ).ToListAsync();
+
+            return videos.Select(v => new
+            {
+                v.AdVideoId,
+                v.Title,
+                v.VideoUrl,
+                v.RewardPerView,
+                v.StartDate,
+                v.EndDate,
+                v.CreatedAt,
+                PackageNames = string.Join(", ", v.PackageNames) // comma-separated names
+            });
+        }
+
+
     }
 }

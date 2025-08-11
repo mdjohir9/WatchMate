@@ -24,7 +24,8 @@ namespace WatchMate_API.Implementation
             var query = from wd in _dbContext.Withdraw
                         join cei in _dbContext.CustomerInfo on wd.CustomerId equals cei.CustomerId into ceiGroup
                         from cei in ceiGroup.DefaultIfEmpty()
-                 
+                        join pa in _dbContext.PaymentAccount on wd.PaymentMethodID equals pa.PayAcId into paGroup
+                        from pa in paGroup.DefaultIfEmpty()
                         join appuser in _dbContext.Users on wd.ApproveBy equals appuser.UserId into userGroup
                         from appuser in userGroup.DefaultIfEmpty()
                         join rejuser in _dbContext.Users on wd.RejectBy equals rejuser.UserId into RejuserGroup
@@ -55,6 +56,7 @@ namespace WatchMate_API.Implementation
                             UpdatedAt = wd.UpdatedAt,
                             ApplyedBy = applyuser.Email,
                             ApplyedAt = wd.ApplyedAt,
+                            PaymentMethodType=pa.BankOrWalletName,
                         };
 
             return await query.ToListAsync();

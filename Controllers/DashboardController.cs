@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using WatchMate_API.Entities;
 using WatchMate_API.Repository;
@@ -54,7 +55,34 @@ namespace WatchMate_API.Controllers
                 });
             }
         }
+        [HttpGet]
+        [Route("admin-balance")]
+        public async Task<IActionResult> GetAdminDashboardBalance()
+        {
+            try
+            {
+                var result = await _unitOfWork.Transaction.GetAdminDashboardSummaryAsync();
 
-
+                return Ok(new { StatusCode = 200, message = "Success", data = result });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { StatusCode = 500, message = "An error occurred", error = ex.Message });
+            }
+        }
+        [HttpGet("recharge-withdraw/{date}")]
+        public async Task<IActionResult> GetAdminDashboardBalance(string date)
+        {
+            try
+            {
+                var result = await _unitOfWork.Transaction.GetRechargeAndWithdrawChartDataAsync(DateTime.Parse(date));
+                return Ok(new { StatusCode = 200, message = "Success", data = result });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { StatusCode = 500, message = "An error occurred", error = ex.Message });
+            }
+        }
+     
     }
 }

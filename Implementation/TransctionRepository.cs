@@ -143,7 +143,66 @@ namespace WatchMate_API.Implementation
                 MonthlyDisbursementAmounts = monthlyDisbursementData
             };
         }
+        public async Task<object> GetAdminDashboardSummaryAsync()
+        {
+            var totalCustomers = await _dbContext.CustomerInfo
+                .Where(c => c.IsActive == false || c.IsActive == null)
+                .CountAsync();
 
+            var ActiveCustomerPackage = await _dbContext.CustomerPackage
+                .Where(l => l.Status == 1)
+                .CountAsync();
+
+            var disbursementAmount = await _dbContext.Transctions
+                .Where(t => t.TransactionType == 1)
+                .SumAsync(t => (decimal?)t.Amount) ?? 0;
+
+            var repaymentAmount = await _dbContext.Transctions
+                .Where(t => t.TransactionType == 2)
+                .SumAsync(t => (decimal?)t.Amount) ?? 0;
+
+            return new
+            {
+                TotalCustomers = totalCustomers,
+                TotalActivePackage = ActiveCustomerPackage,
+                //DisbursementAmount = disbursementAmount,
+                //RepaymentAmount = repaymentAmount
+            };
+        }
+        public async Task<object> GetRechargeAndWithdrawChartDataAsync(DateTime selectedDate)
+        {
+            selectedDate = selectedDate.Date;
+            DateTime startDate = selectedDate.AddDays(-6);
+            DateTime endDate = selectedDate.AddDays(1);
+
+
+            var withdrawData = await _dbContext.Withdraw
+                .Where(w => w.RequestedDate >= startDate && w.RequestedDate < endDate)
+                .GroupBy(w => w.RequestedDate.Date)
+                .Select(g => new { Date = g.Key, Total = g.Sum(x => x.Amount) })
+                .ToListAsync();
+
+            var withdrawSeries = new List<decimal>();
+            var labels = new List<string>();
+
+            for (int i = 0; i < 7; i++)
+            {
+                var date = startDate.AddDays(i);
+                labels.Add(date.ToString("ddd")); // Sat, Sun, Mon, etc.
+
+                withdrawSeries.Add(withdrawData.FirstOrDefault(x => x.Date == date)?.Total ?? 0);
+            }
+
+            return new
+            {
+               
+                Withdraw = new
+                {
+                    Data = withdrawSeries,
+                    Total = withdrawSeries.Sum()
+                }
+            };
+        }
 
         //public async Task<object> GetRechargeAndWithdrawChartDataAsync(DateTime selectedDate)
         //{

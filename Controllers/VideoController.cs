@@ -72,7 +72,7 @@ namespace WatchMate_API.Controllers
         {
             try
             {
-                var videos = await _unitOfWork.Video.GetAllAsync();
+                var videos = await _unitOfWork.Video.GetAdVideos();
                 if (videos == null || !videos.Any())
                 {
                     return NotFound(new { StatusCode = 404, message = "Ad videos not found." });

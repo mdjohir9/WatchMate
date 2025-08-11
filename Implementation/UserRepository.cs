@@ -313,8 +313,8 @@ namespace WatchMate_API.Implementation
                     icon = "setting",
                     submenu = new List<object>
             {
-                new { path = "settings/company", title = "Company", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "settings/paymentMethod", title = "Payment Method", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "settings/company", title = "Company", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "settings/paymentMethod", title = "Payment Method", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "settings/recharge-accounts", title = "Recharge Account", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "settings/add-video", title = "Add Video", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "settings/video-list", title = "Video List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
