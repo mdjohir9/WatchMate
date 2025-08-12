@@ -23,5 +23,6 @@ namespace WatchMate_API.Entities
         public DateTime CreatedAt { get; set; }
 
         public string? PackageIds { get; set; }
+        public bool? IsYouTubeVideo { get; set; }
     }
 }
