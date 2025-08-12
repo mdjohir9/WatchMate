@@ -57,7 +57,7 @@ namespace WatchMate_API.Controllers
                 string cacheKey = "all_customers";
                 if (!_cache.TryGetValue(cacheKey, out List<CustomerInfo> cachedList))
                 {
-                    var customers = await _unitOfWork.CustomerInfo.GetAllAsync();
+                    var customers = await _unitOfWork.CustomerInfo.GetAllWithDetailsAsync();
                     if (customers == null || !customers.Any())
                         return NotFound(new { StatusCode = 404, message = "No customer data found." });
 
@@ -96,6 +96,53 @@ namespace WatchMate_API.Controllers
                 return StatusCode(500, new { StatusCode = 500, message = "Error retrieving customer", error = ex.Message });
             }
         }
+
+        [HttpPost("image-update")]
+        public async Task<IActionResult> UpdateCustomerImage([FromBody] CustomerImageUpdateDTO dto)
+        {
+            try
+            {
+                if (dto == null)
+                    return BadRequest(new { StatusCode = 400, message = "Invalid request data" });
+
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                // Find existing customer
+                var customer = await _unitOfWork.CustomerInfo.GetByIdAsync(dto.CustomerId);
+                if (customer == null)
+                    return NotFound(new { StatusCode = 404, message = "Customer not found" });
+
+                // Save new image using your existing method
+                var savedImagePath = await _unitOfWork.CustomerInfo.SaveDocumentsListsAsync(
+                    dto.ImageBase64List,
+                    customer.CustCardNo,
+                    "1111",
+                    "CustommerImage" // or another document type you prefer
+                );
+
+                // Update only the image field
+                customer.CustmerImage = savedImagePath;
+                _unitOfWork.CustomerInfo.UpdateAsync(customer);
+                await _unitOfWork.Save();
+
+                // Clear cache if needed
+                _cache.Remove("all_customers");
+
+                return Ok(new { StatusCode = 200, message = "Customer image updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    message = "Error updating customer image",
+                    error = ex.Message
+                });
+            }
+        }
+
+
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateCustomer([FromBody] CustomerInfoCreateDTO dto)

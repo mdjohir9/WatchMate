@@ -38,6 +38,34 @@ namespace WatchMate_API.Implementation
 
             return $"WTM{nextNumber}";
         }
+        public async Task<IEnumerable<CustommerDetailesDTO>> GetAllWithDetailsAsync()
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}";
+
+            return await (from cpi in _dbContext.CustomerInfo
+
+                          where (cpi.Deleted == false || cpi.Deleted == null) // match your model field name
+                          orderby cpi.CustomerId descending
+
+                          select new CustommerDetailesDTO
+                          {
+                              CustomerId = cpi.CustomerId,
+                              CustCardNo = cpi.CustCardNo,
+                              CustmerImage = string.IsNullOrEmpty(cpi.CustmerImage)
+                                  ? null
+                                  : $"{baseUrl}/1111/CustommerImage/{cpi.CustmerImage}",
+                              FullName = cpi.FullName,
+                              Gender = cpi.Gender,
+                              DateOfBirth = cpi.DateOfBirth,
+                              Address = cpi.Address,
+                              EmailOrPhone = cpi.EmailOrPhone,
+                              NIDOrPassportNumber = cpi.NIDOrPassportNumber,
+                              IsActive = cpi.IsActive
+                          }).ToListAsync();
+        }
+
+
         public async Task<IEnumerable<CustommerIdAndNameDTO>> GetAllCustommerSummaryAsync(int? customerId)
         {
             var query = _dbContext.CustomerInfo.AsQueryable();
