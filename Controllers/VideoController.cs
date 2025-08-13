@@ -197,7 +197,17 @@ namespace WatchMate_API.Controllers
             string videoUrl;
             try
             {
-                videoUrl = await _unitOfWork.Video.SaveVideoAsync(videoFile, Request);
+                if (dto.IsYouTubeVideo == true)
+                {
+                    videoUrl = dto.YoutubeVideoUrl;
+
+
+                }
+                else
+                {
+                    videoUrl = await _unitOfWork.Video.SaveVideoAsync(videoFile, Request);
+
+                }
             }
             catch (Exception ex)
             {
@@ -208,6 +218,7 @@ namespace WatchMate_API.Controllers
             {
                 Title = dto.Title,
                 VideoUrl = videoUrl,
+                IsYouTubeVideo=dto.IsYouTubeVideo,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate, 
                 RewardPerView = dto.RewardPerView,

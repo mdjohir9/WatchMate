@@ -39,13 +39,14 @@ namespace WatchMate_API.Implementation
             }
 
             // Return public URL
-            return $"{request.Scheme}://{request.Host}/videos/{fileName}";
+            return $"{fileName}";
         }
 
         public async Task<IEnumerable<object>> GetCustomerAdVideos(int customerId)
         {
             var currentDate = DateTime.Now;
-
+            var request = _httpContextAccessor.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}";
             var videos = await (from cp in _dbContext.CustomerPackage
                                 join p in _dbContext.Package on cp.PackageId equals p.PackageId
                                 join ci in _dbContext.CustomerInfo on cp.CustomerId equals ci.CustomerId
@@ -56,7 +57,7 @@ namespace WatchMate_API.Implementation
                                     && v.IsActive == true
                                     && v.StartDate <= currentDate
                                     && v.EndDate >= currentDate
-                                    && (("," + v.PackageIds + ",").Contains("," + cp.PackageId.ToString() + ","))
+                                    && EF.Functions.Like("," + v.PackageIds.Replace("'", "") + ",", "%," + cp.PackageId.ToString() + ",%")
                                 select new
                                 {
                                     ci.CustomerId,
@@ -64,7 +65,12 @@ namespace WatchMate_API.Implementation
                                     ci.FullName,
                                     p.PackageName,
                                     v.Title,
-                                    v.VideoUrl,
+                                    v.IsYouTubeVideo,
+                                    VideoUrl = string.IsNullOrEmpty(v.VideoUrl)
+                ? null
+                : (bool)v.IsYouTubeVideo
+                    ? v.VideoUrl
+                    : $"{baseUrl}/videos/{v.VideoUrl}",
                                     v.RewardPerView,
                                     p.PerAdReward,
                                     p.MinDailyViews,
@@ -83,7 +89,8 @@ namespace WatchMate_API.Implementation
         public async Task<IEnumerable<object>> GetAdVideos()
         {
             var currentDate = DateTime.Now;
-
+            var request = _httpContextAccessor.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}";
             var videos = await (
                 from v in _dbContext.AdVideo
                 where v.IsActive
@@ -91,7 +98,12 @@ namespace WatchMate_API.Implementation
                 {
                     v.AdVideoId,
                     v.Title,
-                    v.VideoUrl,
+                    v.IsYouTubeVideo,
+                    VideoUrl = string.IsNullOrEmpty(v.VideoUrl)
+                ? null
+                : (bool)v.IsYouTubeVideo
+                    ? v.VideoUrl
+                    : $"{baseUrl}/videos/{v.VideoUrl}",
                     v.RewardPerView,
                     v.StartDate,
                     v.EndDate,
