@@ -27,6 +27,7 @@ namespace WatchMate_API.Entities
         public DateTime? DeletedAt { get; set; }
         public int? DeletedBy { get; set; }
         public string ? TransctionCode { get; set; }
+        public string? UsedReferralCode { get; set; }
         // Navigation
         [ForeignKey("CustomerId")]
         public virtual CustomerInfo CustomerInfo { get; set; }

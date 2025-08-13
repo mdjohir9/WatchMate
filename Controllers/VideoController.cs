@@ -189,7 +189,7 @@ namespace WatchMate_API.Controllers
 
         [HttpPost("create")]
         [RequestSizeLimit(524288000)]
-        public async Task<IActionResult> Create([FromForm] AdVideoCreateDTO dto, IFormFile videoFile)
+        public async Task<IActionResult> Create([FromForm] AdVideoCreateDTO dto, IFormFile? videoFile)
         {
             if (!ModelState.IsValid || dto.PackageIds == null || !dto.PackageIds.Any())
                 return BadRequest("Invalid data.");
@@ -199,14 +199,17 @@ namespace WatchMate_API.Controllers
             {
                 if (dto.IsYouTubeVideo == true)
                 {
+                    if (string.IsNullOrWhiteSpace(dto.YoutubeVideoUrl))
+                        return BadRequest("YouTube video URL is required for YouTube videos.");
+
                     videoUrl = dto.YoutubeVideoUrl;
-
-
                 }
                 else
                 {
-                    videoUrl = await _unitOfWork.Video.SaveVideoAsync(videoFile, Request);
+                    if (videoFile == null || videoFile.Length == 0)
+                        return BadRequest("Video file is required when not using YouTube URL.");
 
+                    videoUrl = await _unitOfWork.Video.SaveVideoAsync(videoFile, Request);
                 }
             }
             catch (Exception ex)
@@ -218,9 +221,9 @@ namespace WatchMate_API.Controllers
             {
                 Title = dto.Title,
                 VideoUrl = videoUrl,
-                IsYouTubeVideo=dto.IsYouTubeVideo,
+                IsYouTubeVideo = dto.IsYouTubeVideo,
                 StartDate = dto.StartDate,
-                EndDate = dto.EndDate, 
+                EndDate = dto.EndDate,
                 RewardPerView = dto.RewardPerView,
                 IsActive = dto.IsActive,
                 CreatedAt = DateTime.Now,
@@ -231,7 +234,7 @@ namespace WatchMate_API.Controllers
             await _unitOfWork.Save();
             _cache.Remove("ad_videos");
 
-            return Ok(new { StatusCode = 200, message = "Ad video created with upload.", videoUrl });
+            return Ok(new { StatusCode = 200, message = "Ad video created successfully.", videoUrl });
         }
 
 

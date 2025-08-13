@@ -130,6 +130,15 @@ namespace WatchMate_API.Controllers
 
                     return Ok(new { StatusCode = 200, Message = "Package request rejected successfully." });
                 }
+                if (!string.IsNullOrWhiteSpace(packageRequest.UsedReferralCode))
+                {
+                    await _unitOfWork.Referral.ApplyReferralRewardAsync(
+                        packageRequest.UsedReferralCode,
+                        packageRequest.CustomerId,
+                        packageRequest.PackageId
+                    );
+                }
+
 
                 // ✅ Approval Process
                 packageRequest.Status = 1; // Active
@@ -203,6 +212,7 @@ namespace WatchMate_API.Controllers
                     CreatedBy = dto.UserId,
                     PayAcId = dto.PayMethodID,
                     TransctionCode =dto.TransctionCode,
+                    UsedReferralCode = dto.UsedReferralCode
                 };
 
                 await _unitOfWork.UserPackages.AddAsync(userPackage);
@@ -242,6 +252,8 @@ namespace WatchMate_API.Controllers
                 existing.UpdatedAt = DateTime.Now;
                 existing.UpdatedBy=dto.UserId;
                 existing.PayAcId = dto.PayMethodID;
+                existing.TransctionCode = dto.TransctionCode;
+                existing.UsedReferralCode = dto.UsedReferralCode;
 
                 await _unitOfWork.UserPackages.UpdateAsync(existing);
                 await _unitOfWork.Save();

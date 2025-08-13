@@ -17,6 +17,7 @@ namespace WatchMate_API.DTO.Settings
         public int? PayMethodID { get; set; }
         [Required]
         public string? TransctionCode { get; set; }
+        public string? UsedReferralCode { get; set; }
 
 
     }

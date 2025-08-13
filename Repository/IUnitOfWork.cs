@@ -15,6 +15,7 @@ namespace WatchMate_API.Repository
         IAccountRepository Account { get; }
         IWithdrawRepository Withdraw { get; }
         IPaymnetAccountRepository Payment { get; }
+        IReferralReward Referral { get; }
 
 
 

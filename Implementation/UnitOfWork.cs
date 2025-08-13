@@ -29,7 +29,8 @@ namespace WatchMate_API.Implementation
             Account = new AccountRepository(_dbContext);
             Withdraw = new WithdrawRepository(_dbContext, _httpContextAccessor);
             Payment = new PaymentAccountRepository(_dbContext, _httpContextAccessor);
-
+            Referral = new ReferralRewardRepository(_dbContext);
+           
         }
         public IUserRepository User { get; private set; }
         public IUserRoleRepository UserRole { get; private set; }
@@ -43,6 +44,7 @@ namespace WatchMate_API.Implementation
 
         public IWithdrawRepository Withdraw { get; private set; }
         public IPaymnetAccountRepository Payment { get; private set; }
+        public IReferralReward Referral { get; private set; }
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
