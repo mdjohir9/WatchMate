@@ -8,6 +8,7 @@ namespace WatchMate_API.Repository
         Task<string> GenerateNextCustCardNoAsync();
         Task<IEnumerable<CustommerIdAndNameDTO>> GetAllCustommerSummaryAsync(int? CustommerId);
         Task<IEnumerable<CustommerDetailesDTO>> GetAllWithDetailsAsync();
+        Task<string> GenerateNextReferralCodeAsync();
 
     }
 }

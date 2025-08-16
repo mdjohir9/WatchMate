@@ -6,7 +6,7 @@ namespace WatchMate_API.Entities
 {
     [Index(nameof(UserId), IsUnique = true)]
     [Index(nameof(CustCardNo), IsUnique = true)]
-
+    [Index(nameof(ReferralCode), IsUnique = true)]
     public class CustomerInfo
     {
         [Key]

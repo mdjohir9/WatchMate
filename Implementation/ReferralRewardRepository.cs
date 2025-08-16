@@ -30,7 +30,7 @@ namespace WatchMate_API.Implementation
             if (package == null)
                 return;
 
-            decimal rewardAmount = package.Price * 0.10m; 
+            decimal rewardAmount = (decimal)package.RefBonus; 
 
             var reward = new ReferralReward
             {

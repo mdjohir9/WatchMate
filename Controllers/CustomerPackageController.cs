@@ -123,6 +123,7 @@ namespace WatchMate_API.Controllers
                     packageRequest.Status = 2; // Rejected
                     packageRequest.UpdatedAt = DateTime.UtcNow;
                     packageRequest.UpdatedBy = userId;
+                    
                     await _unitOfWork.UserPackages.UpdateAsync(packageRequest);
 
                     await _unitOfWork.Save();
@@ -194,7 +195,10 @@ namespace WatchMate_API.Controllers
                 var package = await _unitOfWork.Package.GetByIdAsync(dto.PackageId);
                 if (package == null)
                     return NotFound(new { StatusCode = 404, message = "Package not found." });
-
+                if (await _unitOfWork.UserPackages.HasCustomerBoughtPackageAsync(dto.CustomerId, dto.PackageId))
+                {
+                    return BadRequest(new { StatusCode = 400, message = "You already purchased the package. So You Dont Buy Second Time on this account" });
+                }
                 var startDate = DateTime.Now;
                 var expiryDate = package.ValidityDays.HasValue
                     ? startDate.AddDays(package.ValidityDays.Value)
@@ -275,18 +279,25 @@ namespace WatchMate_API.Controllers
         {
             try
             {
-                var check = _unitOfWork.UserPackages.GetByIdAsync(id);
-                 _unitOfWork.UserPackages.DeleteAsync(id);
-                _unitOfWork.Save();
-                _cache.Remove("user_packages");
-                _cache.Remove($"user_package_{id}");
+                await _unitOfWork.UserPackages.DeleteAsync(id);
+                await _unitOfWork.Save();
+
+                // ✅ Clear all possible cache keys related to customer packages
+                _cache.Remove("customer_package_all");
+                _cache.Remove($"customer_package_{id}");
 
                 return Ok(new { StatusCode = 200, message = "User package deleted successfully." });
+            }
+            catch (KeyNotFoundException knfEx)
+            {
+                return NotFound(new { StatusCode = 404, message = knfEx.Message });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { StatusCode = 500, message = "Deletion failed", error = ex.Message });
             }
         }
+
+
     }
 }

@@ -19,7 +19,7 @@ namespace WatchMate_API.Implementation
         public async Task<string> GenerateNextCustCardNoAsync()
         {
             var lastCardNo = await _dbContext.CustomerInfo
-                .Where(x => x.CustCardNo.StartsWith("WTM"))
+                .Where(x => x.CustCardNo.StartsWith("WE"))
                 .OrderByDescending(x => x.CustCardNo)
                 .Select(x => x.CustCardNo)
                 .FirstOrDefaultAsync();
@@ -36,7 +36,29 @@ namespace WatchMate_API.Implementation
                 }
             }
 
-            return $"WTM{nextNumber}";
+            return $"WE{nextNumber}";
+        }
+
+        public async Task<string> GenerateNextReferralCodeAsync()
+        {
+            var lastReferralCode = await _dbContext.CustomerInfo
+                .Where(x => x.ReferralCode.StartsWith("WEREF"))
+                .OrderByDescending(x => x.ReferralCode)
+                .Select(x => x.ReferralCode)
+                .FirstOrDefaultAsync();
+
+            int nextNumber = 111;
+
+            if (!string.IsNullOrEmpty(lastReferralCode))
+            {
+                var numericPart = lastReferralCode.Substring(6);
+                if (int.TryParse(numericPart, out int lastNumber))
+                {
+                    nextNumber = lastNumber + 1;
+                }
+            }
+
+            return $"WEREF{nextNumber}";
         }
         public async Task<IEnumerable<CustommerDetailesDTO>> GetAllWithDetailsAsync()
         {

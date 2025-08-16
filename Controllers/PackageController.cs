@@ -107,6 +107,7 @@ namespace WatchMate_API.Controllers
                     ValidityDays = dto.ValidityDays,
                     MaxDailyViews = dto.MaxDailyViews,
                     PerAdReward = dto.PerAdReward,
+                    RefBonus = dto.RefBonus,
                     Status = dto.Status,
                     CreatedAt = DateTime.Now,
                     CreatedBy = userId,
@@ -153,6 +154,7 @@ namespace WatchMate_API.Controllers
                 existingPackage.ValidityDays = dto.ValidityDays;
                 existingPackage.MaxDailyViews = dto.MaxDailyViews;
                 existingPackage.PerAdReward = dto.PerAdReward;
+                existingPackage.RefBonus = dto.RefBonus;
                 existingPackage.Status = dto.Status;
                 existingPackage.UpdatedAt = DateTime.Now;
                 existingPackage.UpdatedBy = userId;

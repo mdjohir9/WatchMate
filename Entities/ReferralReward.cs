@@ -1,5 +1,8 @@
-﻿namespace WatchMate_API.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace WatchMate_API.Entities
 {
+    [Table("ReferralReward", Schema = "dbo")]
     public class ReferralReward
     {
         public int Id { get; set; }

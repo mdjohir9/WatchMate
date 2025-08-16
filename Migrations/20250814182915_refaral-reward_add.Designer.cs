@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WatchMate_API.Entities;
 
@@ -11,9 +12,11 @@ using WatchMate_API.Entities;
 namespace WatchMate_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250814182915_refaral-reward_add")]
+    partial class refaralreward_add
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -173,7 +176,7 @@ namespace WatchMate_API.Migrations
 
                     b.Property<string>("ReferralCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("ReferralEarnings")
                         .HasColumnType("decimal(18,2)");
@@ -192,9 +195,6 @@ namespace WatchMate_API.Migrations
                     b.HasIndex("CustCardNo")
                         .IsUnique()
                         .HasFilter("[CustCardNo] IS NOT NULL");
-
-                    b.HasIndex("ReferralCode")
-                        .IsUnique();
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -312,9 +312,6 @@ namespace WatchMate_API.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("RefBonus")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
 
@@ -411,7 +408,7 @@ namespace WatchMate_API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ReferralReward", "dbo");
+                    b.ToTable("ReferralReward");
                 });
 
             modelBuilder.Entity("WatchMate_API.Entities.TransactionType", b =>

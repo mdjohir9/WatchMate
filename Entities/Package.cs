@@ -21,6 +21,7 @@ namespace WatchMate_API.Entities
 
         public decimal? PerAdReward { get; set; }
         public decimal? PerDayReward { get; set; }
+        public decimal? RefBonus { get; set; }
 
         [Required]
         public byte? Status { get; set; }

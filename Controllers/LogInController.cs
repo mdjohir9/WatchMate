@@ -74,6 +74,7 @@ namespace WatchMate_API.Controllers
                     AdditionalPermissions = _user.AdditionalPermissions,
                     RemovedPermissions = _user.RemovedPermissions,
                     IsAdministrator = _user.IsAdministrator,
+                    UsedReferralCode = customer?.ReferralCode,
                     dataAccessLevel = userRole?.DataAccessLevel.ToString() ?? ""
                 };
 
@@ -122,7 +123,7 @@ namespace WatchMate_API.Controllers
 
                 using var transaction = await _unitOfWork.BeginTransactionAsync(); // Start transaction
                 var custCardNo = await _unitOfWork.CustomerInfo.GenerateNextCustCardNoAsync();
-
+                var refId = await _unitOfWork.CustomerInfo.GenerateNextReferralCodeAsync();
                 try
                 {
                     // Step 1: Create user
@@ -157,7 +158,8 @@ namespace WatchMate_API.Controllers
                         DateOfBirth = usersDTO.DateOfBirth,
                         Gender = usersDTO.Gender,
                         NIDOrPassportNumber = usersDTO.NIDOrPassportNumber,
-                        UserId = user.UserId
+                        UserId = user.UserId,
+                        ReferralCode = refId,
                     };
 
                   var newCustomer = await _unitOfWork.CustomerInfo.AddAsyncReturn(customerInfo);
