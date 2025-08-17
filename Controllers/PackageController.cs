@@ -30,7 +30,36 @@ namespace WatchMate_API.Controllers
 
 
         [HttpGet]
-        [Route("packages")]
+        [Route("all-packages")]//Active In-Aactive Packages
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> GetAllPackages()
+        {
+            try
+            {
+                string cacheKey = "packages";
+                var PaymentAccount = await _unitOfWork.Payment.GetAllPaymentAccountsAsync();
+
+                if (!_cache.TryGetValue(cacheKey, out List<Package> cachedPackages))
+                {
+                    var packages = await _unitOfWork.Package.GetAllAsync();
+                    if (packages == null || !packages.Any())
+                        return NotFound(new { StatusCode = 404, message = "Packages not found." });
+
+                    var list = packages.ToList();
+                    _cache.Set(cacheKey, list, TimeSpan.FromMinutes(1));
+                    return Ok(new { StatusCode = 200, message = "Success", data = list, paymentAccount = PaymentAccount });
+                }
+
+                return Ok(new { StatusCode = 200, message = "Success", data = cachedPackages, paymentAccount = PaymentAccount });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { StatusCode = 500, message = "An error occurred", error = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("packages")]//Active Packages
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> GetPackages()
         {
@@ -41,7 +70,7 @@ namespace WatchMate_API.Controllers
 
                 if (!_cache.TryGetValue(cacheKey, out List<Package> cachedPackages))
                 {
-                    var packages = await _unitOfWork.Package.GetAllAsync();
+                    var packages = await _unitOfWork.Package.GetActivePackagesAsync();
                     if (packages == null || !packages.Any())
                         return NotFound(new { StatusCode = 404, message = "Packages not found." });
 
@@ -174,24 +203,34 @@ namespace WatchMate_API.Controllers
         }
 
 
-        [HttpDelete]
-        [Route("delete/{id}")]
-        public async Task<IActionResult> DeletePackage(int id,int userId)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeletePackage(int id, [FromQuery] int userId)
         {
             try
             {
-                var check = _unitOfWork.Package.GetByIdAsync(id);
-                _unitOfWork.Package.DeleteAsync(id);
-                await _unitOfWork.Save();
-                _cache.Remove("packages");
-                _cache.Remove($"package_{id}");
+                var package = await _unitOfWork.Package.GetByIdAsync(id);
+                if (package == null)
+                {
+                    return NotFound(new { StatusCode = 404, message = $"Package with id {id} not found." });
+                }
 
-                return Ok(new { StatusCode = 200, message = "Package deleted successfully" });
+                await _unitOfWork.Package.DeleteAsync(id);
+                await _unitOfWork.Save();
+
+                _cache.Remove("packages");          
+                _cache.Remove($"package_{id}");    
+
+                return Ok(new { StatusCode = 200, message = "Package deleted successfully." });
+            }
+            catch (KeyNotFoundException knfEx)
+            {
+                return NotFound(new { StatusCode = 404, message = knfEx.Message });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { StatusCode = 500, message = "Failed to delete package", error = ex.Message });
             }
         }
+
     }
 }

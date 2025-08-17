@@ -60,18 +60,13 @@ namespace WatchMate_API.Controllers
         {
             try
             {
-                string cacheKey = $"user_package_{id}";
-                if (!_cache.TryGetValue(cacheKey, out CustomerPackage cachedItem))
+             
+                var result = await _unitOfWork.UserPackages.GetByIdAsync(id);
+                if (result == null)
                 {
-                    var result = await _unitOfWork.UserPackages.GetByIdAsync(id);
-                    if (result == null)
-                        return NotFound(new { StatusCode = 404, message = "User package not found." });
-
-                    _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
-                    return Ok(new { StatusCode = 200, message = "Success", data = result });
+                    return NotFound(new { StatusCode = 404, message = "User package not found." });
                 }
-
-                return Ok(new { StatusCode = 200, message = "Success", data = cachedItem });
+                return Ok(new { StatusCode = 200, message = "Success", data = result });
             }
             catch (Exception ex)
             {
@@ -84,19 +79,18 @@ namespace WatchMate_API.Controllers
         {
             try
             {
-                string cacheKey = $"customer_package_{(customerId.HasValue ? customerId.ToString() : "all")}";
-                if (!_cache.TryGetValue(cacheKey, out List<CustomerPackageDTO> cachedData))
-                {
-                    var result = await _unitOfWork.UserPackages.GetCustomerPackageByCustomerId(customerId);
+               
+              
+                 var result = await _unitOfWork.UserPackages.GetCustomerPackageByCustomerId(customerId);
 
-                    if (result == null || !result.Any())
-                        return NotFound(new { StatusCode = 404, message = "Customer package(s) not found." });
-
-                    _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
-                    return Ok(new { StatusCode = 200, message = "Success", data = result });
+                if (result == null || !result.Any()) {
+                    return NotFound(new { StatusCode = 404, message = "Customer package(s) not found." });
                 }
+                 
+                return Ok(new { StatusCode = 200, message = "Success", data = result });
+        
 
-                return Ok(new { StatusCode = 200, message = "Success (Cache)", data = cachedData });
+               
             }
             catch (Exception ex)
             {
@@ -298,6 +292,31 @@ namespace WatchMate_API.Controllers
             }
         }
 
+
+        [HttpDelete]
+        [Route("delete-by-customer/{id}")]
+        public async Task<IActionResult> DeleteUserByeCustomerPackage(int id)
+        {
+            try
+            {
+                await _unitOfWork.UserPackages.DeleteCustomerPackageAsync(id);
+                await _unitOfWork.Save();
+
+                // ✅ Clear all possible cache keys related to customer packages
+                _cache.Remove("customer_package_all");
+                _cache.Remove($"customer_package_{id}");
+
+                return Ok(new { StatusCode = 200, message = "User package deleted successfully." });
+            }
+            catch (KeyNotFoundException knfEx)
+            {
+                return NotFound(new { StatusCode = 404, message = knfEx.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { StatusCode = 500, message = "Deletion failed", error = ex.Message });
+            }
+        }
 
     }
 }

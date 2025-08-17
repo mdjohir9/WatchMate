@@ -25,7 +25,7 @@ namespace WatchMate_API.Implementation
                         join ci in _dbContext.CustomerInfo on cp.CustomerId equals ci.CustomerId
                         join p in _dbContext.Package on cp.PackageId equals p.PackageId
                         join pm in _dbContext.PaymentAccount on cp.PayAcId equals pm.PayAcId
-                        where !customerId.HasValue || cp.CustomerId == customerId orderby cp.Id
+                        where !customerId.HasValue || cp.CustomerId == customerId orderby cp.Id descending
                         select new CustomerPackageDTO
                         {
                             Id = cp.Id,
@@ -52,16 +52,21 @@ namespace WatchMate_API.Implementation
         public async Task<bool> HasCustomerBoughtPackageAsync(int customerId, int packageId)
         {
             return await _dbContext.CustomerPackage
-                .AnyAsync(up => up.CustomerId == customerId && up.PackageId == packageId);
+                .AnyAsync(up => up.CustomerId == customerId);
         }
         public async Task DeleteCustomerPackageAsync(int id)
         {
+
             var entity = await _dbContext.CustomerPackage.FindAsync(id);
             if (entity == null)
-                throw new KeyNotFoundException($"Customer Package with id {id} not found.");
+                throw new KeyNotFoundException($"Customer Package not found.");
 
-            _dbContext.CustomerPackage.Remove(entity);   // mark for delete
-            await _dbContext.SaveChangesAsync();         // persist delete
+            if (entity.Status == 1)
+            {
+                throw new InvalidOperationException($"The Customer Package already approved Its cannot be deleted.");
+            }
+            _dbContext.CustomerPackage.Remove(entity);  
+            await _dbContext.SaveChangesAsync();         
         }
 
     }

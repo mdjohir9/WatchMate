@@ -90,45 +90,48 @@ namespace WatchMate_API.Implementation
         {
             var currentDate = DateTime.Now;
             var request = _httpContextAccessor.HttpContext.Request;
-            var baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}";
-            var videos = await (
-                from v in _dbContext.AdVideo
-                where v.IsActive
-                select new
+            var baseUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}";
+
+            var videosFromDb = await _dbContext.AdVideo
+                .AsNoTracking()
+                .ToListAsync(); // fetch DB first
+
+            var packages = await _dbContext.Package.AsNoTracking().ToListAsync();
+
+            var videos = videosFromDb.Select(v =>
+            {
+                var packageIds = v.PackageIds?
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim('\''))
+                    .Select(int.Parse)
+                    .ToList() ?? new List<int>();
+
+                var packageNames = packages
+                    .Where(p => packageIds.Contains(p.PackageId))
+                    .Select(p => p.PackageName)
+                    .ToList();
+
+                return new
                 {
                     v.AdVideoId,
                     v.Title,
                     v.IsYouTubeVideo,
                     VideoUrl = string.IsNullOrEmpty(v.VideoUrl)
-                ? null
-                : (bool)v.IsYouTubeVideo
-                    ? v.VideoUrl
-                    : $"{baseUrl}/videos/{v.VideoUrl}",
+                        ? null
+                        : (bool)v.IsYouTubeVideo
+                            ? v.VideoUrl
+                            : $"{baseUrl}/videos/{v.VideoUrl}",
                     v.RewardPerView,
                     v.StartDate,
                     v.EndDate,
                     v.CreatedAt,
-                    PackageNames = (
-                        from p in _dbContext.Package
-                        where ("," + v.PackageIds + ",").Contains("," + p.PackageId + ",")
-                        select p.PackageName
-                    ).ToList()
-                }
-            ).ToListAsync();
+                    v.IsActive,
+                    PackageNames = string.Join(", ", packageNames)
+                };
+            }).ToList();
 
-            return videos.Select(v => new
-            {
-                v.AdVideoId,
-                v.Title,
-                v.VideoUrl,
-                v.RewardPerView,
-                v.StartDate,
-                v.EndDate,
-                v.CreatedAt,
-                PackageNames = string.Join(", ", v.PackageNames) // comma-separated names
-            });
+            return videos;
+
         }
-
-
     }
 }

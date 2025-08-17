@@ -245,18 +245,32 @@ namespace WatchMate_API.Controllers
             if (video == null)
                 return NotFound(new { StatusCode = 404, message = "Ad video not found." });
 
-            // Delete video file from server
-            var videoPath = video.VideoUrl;
-            var fileName = Path.GetFileName(new Uri(videoPath).AbsolutePath);
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos", fileName);
+            // Determine file path
+            string filePath = null;
 
-            if (System.IO.File.Exists(filePath))
+            if (!string.IsNullOrEmpty(video.VideoUrl))
             {
-                System.IO.File.Delete(filePath);
+                if (Uri.IsWellFormedUriString(video.VideoUrl, UriKind.Absolute))
+                {
+                    // It's a URL, get the file name
+                    var fileName = Path.GetFileName(new Uri(video.VideoUrl).AbsolutePath);
+                    filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos", fileName);
+                }
+                else
+                {
+                    // It's already a relative path / file name
+                    filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos", video.VideoUrl);
+                }
+
+                // Delete file if exists
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
             }
 
             // Delete from database
-            _unitOfWork.Video.DeleteAsync(id);
+            await _unitOfWork.Video.DeleteAsync(id);
             await _unitOfWork.Save();
 
             // Remove cache
@@ -264,6 +278,7 @@ namespace WatchMate_API.Controllers
 
             return Ok(new { StatusCode = 200, message = "Ad video deleted successfully." });
         }
+
 
     }
 }

@@ -219,15 +219,18 @@ namespace WatchMate_API.Controllers
         {
             try
             {
-                //var customer = await _unitOfWork.CustomerInfo.GetByIdAsync(id);
-                //if (customer == null)
-                //    return NotFound(new { StatusCode = 404, message = "Customer not found" });
+                var customer = await _unitOfWork.CustomerInfo.GetByIdAsync(id);
+                if (customer == null)
+                    return NotFound(new { StatusCode = 404, message = "Customer not found" });
 
                 //customer.Deleted = true;
                 //customer.DeletedAt = DateTime.Now;
                 //customer.DeletedBy = 1; // Replace with logged-in user ID
 
+                await _unitOfWork.User.DeleteAsync(customer.UserId);
                 await _unitOfWork.CustomerInfo.DeleteAsync(id);
+                //await _unitOfWork.Account.DeleteAsync(customer.CustomerId);
+                await _unitOfWork.UserPackages.DeleteAsync(customer.CustomerId);
                 await _unitOfWork.Save();
 
                 _cache.Remove("all_customers");

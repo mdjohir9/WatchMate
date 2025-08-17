@@ -16,6 +16,11 @@ namespace WatchMate_API.Implementation
             _httpContextAccessor = httpContextAccessor;
         }
 
-
+        public async Task<IEnumerable<Package>> GetActivePackagesAsync()
+        {
+            return await _dbContext.Package
+                .Where(p => p.Status == 1)
+                .ToListAsync();
+        }
     }
 }

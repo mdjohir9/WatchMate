@@ -5,7 +5,8 @@ namespace WatchMate_API.Repository
 {
     public interface IPackageRepository :  IGenericRepository<Package>
     {
-   
+
+        Task<IEnumerable<Package>> GetActivePackagesAsync();
 
     }
 }

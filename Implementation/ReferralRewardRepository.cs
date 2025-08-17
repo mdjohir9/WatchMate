@@ -18,13 +18,15 @@ namespace WatchMate_API.Implementation
             if (string.IsNullOrWhiteSpace(referralCode))
                 return;
 
-            var accountBalance =  await _dbContext.AccountBalance.FirstOrDefaultAsync(u => u.CustomerId == buyerUserId);
-            if (accountBalance == null)
-                return;
+      
 
             var referrer = await _dbContext.CustomerInfo.FirstOrDefaultAsync(u => u.ReferralCode == referralCode);
             if (referrer == null )
                 return; // invalid or self-referral
+
+            var accountBalance = await _dbContext.AccountBalance.FirstOrDefaultAsync(u => u.CustomerId == referrer.CustomerId);
+            if (accountBalance == null)
+                return;
 
             var package = await _dbContext.Package.FindAsync(packageId);
             if (package == null)
