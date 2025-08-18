@@ -188,7 +188,6 @@ namespace WatchMate_API.Controllers
         }
 
         [HttpPost("create")]
-        [RequestSizeLimit(524288000)]
         public async Task<IActionResult> Create([FromForm] AdVideoCreateDTO dto, IFormFile? videoFile)
         {
             if (!ModelState.IsValid || dto.PackageIds == null || !dto.PackageIds.Any())
@@ -228,6 +227,8 @@ namespace WatchMate_API.Controllers
                 IsActive = dto.IsActive,
                 CreatedAt = DateTime.Now,
                 PackageIds = dto.PackageIds,
+                //MaxWatchingTime = dto.MaxWatchingTime,
+                //MinWatchingTime = dto.MinWatchingTime
             };
 
             await _unitOfWork.Video.AddAsync(video);

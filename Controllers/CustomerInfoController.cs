@@ -230,7 +230,7 @@ namespace WatchMate_API.Controllers
                 await _unitOfWork.User.DeleteAsync(customer.UserId);
                 await _unitOfWork.CustomerInfo.DeleteAsync(id);
                 //await _unitOfWork.Account.DeleteAsync(customer.CustomerId);
-                await _unitOfWork.UserPackages.DeleteAsync(customer.CustomerId);
+               // await _unitOfWork.UserPackages.DeleteAsync(customer.CustomerId);
                 await _unitOfWork.Save();
 
                 _cache.Remove("all_customers");

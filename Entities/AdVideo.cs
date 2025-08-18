@@ -24,5 +24,7 @@ namespace WatchMate_API.Entities
 
         public string? PackageIds { get; set; }
         public bool? IsYouTubeVideo { get; set; }
+        //public TimeSpan? MinWatchingTime { get; set; }
+        //public TimeSpan? MaxWatchingTime { get; set; }
     }
 }

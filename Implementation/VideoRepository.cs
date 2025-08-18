@@ -80,6 +80,8 @@ namespace WatchMate_API.Implementation
                                     cp.PackageId,
                                     ac.Id,
                                     p.PerDayReward,
+                                    //v.MinWatchingTime,
+                                    //v.MaxWatchingTime
                                 }).ToListAsync();
 
 

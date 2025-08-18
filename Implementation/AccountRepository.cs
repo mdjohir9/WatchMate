@@ -70,7 +70,8 @@ namespace WatchMate_API.Implementation
                               CustomerId = ab.CustomerId,
                               BalanceAmount = Math.Round(ab.BalanceAmount, 0),
                               PackagePrice = cp != null ? Math.Round(cp.PackagePrice, 0) : 0,
-                              PerDayReward = pkgJoin != null ? Math.Round(pkgJoin.PerDayReward ?? 0, 0) : 0
+                              PerDayReward = pkgJoin != null ? Math.Round(pkgJoin.PerDayReward ?? 0, 0) : 0,
+                              PerDayVideos= pkgJoin.MaxDailyViews
                           }).FirstOrDefault();
 
             return result;
