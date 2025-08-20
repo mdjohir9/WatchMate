@@ -19,8 +19,15 @@ namespace WatchMate_API.Implementation
         public async Task<IEnumerable<Package>> GetActivePackagesAsync()
         {
             return await _dbContext.Package
-                .Where(p => p.Status == 1)
+                .Where(p => p.Status == 1 && p.IsFree != 1)
                 .ToListAsync();
         }
+        public async Task<Package> GetFreePackagesAsync()
+        {
+            return await _dbContext.Package
+                .Where(p => p.IsFree == 1 && p.Deleted != true && p.Status == 1)
+                .FirstOrDefaultAsync();
+        }
+
     }
 }

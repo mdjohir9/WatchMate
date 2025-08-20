@@ -227,8 +227,8 @@ namespace WatchMate_API.Controllers
                 IsActive = dto.IsActive,
                 CreatedAt = DateTime.Now,
                 PackageIds = dto.PackageIds,
-                //MaxWatchingTime = dto.MaxWatchingTime,
-                //MinWatchingTime = dto.MinWatchingTime
+                MaxWatchingTime = dto.MaxWatchingTime,
+                MinWatchingTime = dto.MinWatchingTime
             };
 
             await _unitOfWork.Video.AddAsync(video);

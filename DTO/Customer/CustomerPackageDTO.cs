@@ -9,7 +9,7 @@
         public string FullName { get; set; }
         public string? UsedReferralCode { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime ExpiryDate { get; set; }
+        public DateTime? ExpiryDate { get; set; }
         public decimal PackagePrice { get; set; }
         public byte Status { get; set; }
         public string TransctionCode { get; set; }

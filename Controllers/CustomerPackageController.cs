@@ -106,6 +106,7 @@ namespace WatchMate_API.Controllers
             try
             {
                 var packageRequest = await _unitOfWork.UserPackages.GetByIdAsync(id);
+                var package = await _unitOfWork.Package.GetByIdAsync(packageRequest.PackageId);
                 if (packageRequest == null)
                     return NotFound(new { StatusCode = 404, Message = $"Package request with ID {id} not found." });
 
@@ -137,8 +138,16 @@ namespace WatchMate_API.Controllers
 
                 // ✅ Approval Process
                 packageRequest.Status = 1; // Active
+                                           // Fix for CS1061: 'DateTime' does not contain a definition for 'Value'
+                                           // The issue occurs because 'DateTime' is a non-nullable value type and does not have a 'Value' property.
+                                           // The correct approach is to directly use the 'DateTime' instance without accessing a 'Value' property.
+
+          
+
                 packageRequest.StartDate = DateTime.UtcNow;
-                packageRequest.ExpiryDate = DateTime.UtcNow.AddDays(30); 
+               packageRequest.ExpiryDate = package.ValidityDays.HasValue
+                    ? packageRequest.StartDate.AddDays(package.ValidityDays.Value) // Removed '.Value' from 'StartDate'
+                    : null;
                 packageRequest.UpdatedAt = DateTime.UtcNow;
                 packageRequest.UpdatedBy = userId;
                 await _unitOfWork.UserPackages.UpdateAsync(packageRequest);

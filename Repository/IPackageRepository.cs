@@ -7,6 +7,7 @@ namespace WatchMate_API.Repository
     {
 
         Task<IEnumerable<Package>> GetActivePackagesAsync();
+        Task<Package> GetFreePackagesAsync();
 
     }
 }

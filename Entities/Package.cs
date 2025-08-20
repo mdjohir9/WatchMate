@@ -25,6 +25,7 @@ namespace WatchMate_API.Entities
 
         [Required]
         public byte? Status { get; set; }
+        public byte? IsFree { get; set; }
         public DateTime? CreatedAt { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? UpdatedAt { get; set; }

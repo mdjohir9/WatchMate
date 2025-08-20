@@ -28,8 +28,8 @@ namespace WatchMate_API.Implementation
 
             if (!string.IsNullOrEmpty(lastCardNo))
             {
-                // Extract numeric part from "WTM111"
-                var numericPart = lastCardNo.Substring(3);
+                // Extract numeric part after "WE"
+                var numericPart = lastCardNo.Substring(2);
                 if (int.TryParse(numericPart, out int lastNumber))
                 {
                     nextNumber = lastNumber + 1;
@@ -38,6 +38,7 @@ namespace WatchMate_API.Implementation
 
             return $"WE{nextNumber}";
         }
+
 
         public async Task<string> GenerateNextReferralCodeAsync()
         {
@@ -51,7 +52,8 @@ namespace WatchMate_API.Implementation
 
             if (!string.IsNullOrEmpty(lastReferralCode))
             {
-                var numericPart = lastReferralCode.Substring(6);
+                // Correct: "WEREF" has 5 chars, so take from index 5
+                var numericPart = lastReferralCode.Substring(5);
                 if (int.TryParse(numericPart, out int lastNumber))
                 {
                     nextNumber = lastNumber + 1;
@@ -60,6 +62,7 @@ namespace WatchMate_API.Implementation
 
             return $"WEREF{nextNumber}";
         }
+
         public async Task<IEnumerable<CustommerDetailesDTO>> GetAllWithDetailsAsync()
         {
             var request = _httpContextAccessor.HttpContext.Request;

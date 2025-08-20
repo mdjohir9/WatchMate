@@ -16,7 +16,7 @@ namespace WatchMate_API.Entities
         public decimal PackagePrice { get; set; }
 
         public DateTime StartDate { get; set; }
-        public DateTime ExpiryDate { get; set; }
+        public DateTime? ExpiryDate { get; set; }
 
         public byte Status { get; set; }// 1=Active 2=Rejected 3=expired
         public DateTime? CreatedAt { get; set; }

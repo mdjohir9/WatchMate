@@ -52,7 +52,9 @@ namespace WatchMate_API.Implementation
         public async Task<bool> HasCustomerBoughtPackageAsync(int customerId, int packageId)
         {
             return await _dbContext.CustomerPackage
-                .AnyAsync(up => up.CustomerId == customerId);
+                .AnyAsync(up => up.CustomerId == customerId
+                            && up.PackageId == packageId
+                            && up.Package.IsFree != 1);
         }
         public async Task DeleteCustomerPackageAsync(int id)
         {

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using WatchMate_API.Migrations;
 
 namespace WatchMate_API.Controllers
 {
@@ -175,7 +176,42 @@ namespace WatchMate_API.Controllers
                     await _unitOfWork.Account.AddAsync(account);
                     await _unitOfWork.Save(); // Save customer info
 
-                    await transaction.CommitAsync(); // ✅ Commit transaction
+
+                    var freePackage = await _unitOfWork.Package.GetFreePackagesAsync();
+                    if (freePackage != null)
+                    {
+                        var userPackage = new CustomerPackage
+                        {
+                            CustomerId = newCustomer.CustomerId,
+                            PackageId = freePackage.PackageId,
+                            PackagePrice = 0, // Free
+                            Status = 1, // Active
+                            StartDate = DateTime.UtcNow,
+                            ExpiryDate = freePackage.ValidityDays.HasValue
+                                            ? DateTime.UtcNow.AddDays(freePackage.ValidityDays.Value)
+                                            : null,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = user.UserId
+                        };
+
+                        await _unitOfWork.UserPackages.AddAsync(userPackage);
+
+                        //// Optional: log free package activation in Transactions table
+                        //var transactionRecord = new Transctions
+                        //{
+                        //    TransactionType = 4, // package purchase
+                        //    Amount = 0, // free
+                        //    TransactionDate = DateTime.UtcNow,
+                        //    UserId = newCustomer.CustomerId,
+                        //    PaytMethodID = 0, // none
+                        //    Remarks = $"Free package auto-assigned on registration (CustomerId: {newCustomer.CustomerId})"
+                        //};
+                        //await _unitOfWork.Transaction.AddAsync(transactionRecord);
+
+                        await _unitOfWork.Save();
+                    }
+
+                        await transaction.CommitAsync(); // ✅ Commit transaction
 
                     _cache.Remove("users"); // Clear cache if any
 

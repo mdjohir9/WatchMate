@@ -53,7 +53,7 @@ namespace WatchMate_API.Implementation
                                 join ac in _dbContext.AccountBalance on cp.CustomerId equals ac.CustomerId
                                 join v in _dbContext.AdVideo on 1 equals 1
                                 where cp.CustomerId == customerId
-                                    && cp.ExpiryDate >= currentDate
+                                    && cp.StartDate.AddDays(p.ValidityDays ?? 0) >= currentDate
                                     && v.IsActive == true
                                     && v.StartDate <= currentDate
                                     && v.EndDate >= currentDate
@@ -80,8 +80,8 @@ namespace WatchMate_API.Implementation
                                     cp.PackageId,
                                     ac.Id,
                                     p.PerDayReward,
-                                    //v.MinWatchingTime,
-                                    //v.MaxWatchingTime
+                                    v.MinWatchingTime,
+                                    v.MaxWatchingTime
                                 }).ToListAsync();
 
 
@@ -128,6 +128,8 @@ namespace WatchMate_API.Implementation
                     v.EndDate,
                     v.CreatedAt,
                     v.IsActive,
+                    v.MinWatchingTime,
+                    v.MaxWatchingTime,
                     PackageNames = string.Join(", ", packageNames)
                 };
             }).ToList();
