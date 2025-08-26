@@ -31,26 +31,20 @@ namespace WatchMate_API.Controllers
 
         [HttpGet]
         [Route("all-packages")]//Active In-Aactive Packages
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> GetAllPackages()
         {
             try
             {
-                string cacheKey = "packages";
+
                 var PaymentAccount = await _unitOfWork.Payment.GetAllPaymentAccountsAsync();
 
-                if (!_cache.TryGetValue(cacheKey, out List<Package> cachedPackages))
-                {
                     var packages = await _unitOfWork.Package.GetAllAsync();
                     if (packages == null || !packages.Any())
                         return NotFound(new { StatusCode = 404, message = "Packages not found." });
 
                     var list = packages.ToList();
-                    _cache.Set(cacheKey, list, TimeSpan.FromMinutes(1));
                     return Ok(new { StatusCode = 200, message = "Success", data = list, paymentAccount = PaymentAccount });
-                }
-
-                return Ok(new { StatusCode = 200, message = "Success", data = cachedPackages, paymentAccount = PaymentAccount });
+                
             }
             catch (Exception ex)
             {
@@ -60,26 +54,22 @@ namespace WatchMate_API.Controllers
 
         [HttpGet]
         [Route("packages")]//Active Packages
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> GetPackages()
         {
             try
             {
-                string cacheKey = "packages";
+    
                 var PaymentAccount = await _unitOfWork.Payment.GetAllPaymentAccountsAsync();
-
-                if (!_cache.TryGetValue(cacheKey, out List<Package> cachedPackages))
-                {
                     var packages = await _unitOfWork.Package.GetActivePackagesAsync();
                     if (packages == null || !packages.Any())
                         return NotFound(new { StatusCode = 404, message = "Packages not found." });
 
                     var list = packages.ToList();
-                    _cache.Set(cacheKey, list, TimeSpan.FromMinutes(1));
+             
                     return Ok(new { StatusCode = 200, message = "Success", data = list , paymentAccount = PaymentAccount });
-                }
+                
 
-                return Ok(new { StatusCode = 200, message = "Success", data = cachedPackages, paymentAccount = PaymentAccount });
+                
             }
             catch (Exception ex)
             {

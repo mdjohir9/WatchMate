@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
+using WatchMate_API.Implementation;
 
 namespace WatchMate_API.Repository
 {
@@ -16,6 +17,7 @@ namespace WatchMate_API.Repository
         IWithdrawRepository Withdraw { get; }
         IPaymnetAccountRepository Payment { get; }
         IReferralReward Referral { get; }
+        IWithdrawRuleRepository WithdrawRule { get; }
 
 
 

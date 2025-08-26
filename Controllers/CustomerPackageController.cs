@@ -34,19 +34,14 @@ namespace WatchMate_API.Controllers
         {
             try
             {
-                string cacheKey = "user_packages";
-                if (!_cache.TryGetValue(cacheKey, out List<CustomerPackage> cachedList))
-                {
+              
                     var userPackages = await _unitOfWork.UserPackages.GetAllAsync();
                     if (userPackages == null || !userPackages.Any())
                         return NotFound(new { StatusCode = 404, message = "User packages not found." });
 
-                    var list = userPackages.ToList();
-                    _cache.Set(cacheKey, list, TimeSpan.FromMinutes(1));
-                    return Ok(new { StatusCode = 200, message = "Success", data = list });
-                }
 
-                return Ok(new { StatusCode = 200, message = "Success", data = cachedList });
+                    return Ok(new { StatusCode = 200, message = "Success", data = userPackages });
+
             }
             catch (Exception ex)
             {

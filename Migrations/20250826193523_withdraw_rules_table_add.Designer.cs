@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WatchMate_API.Entities;
 
@@ -11,9 +12,11 @@ using WatchMate_API.Entities;
 namespace WatchMate_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250826193523_withdraw_rules_table_add")]
+    partial class withdraw_rules_table_add
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -772,11 +775,12 @@ namespace WatchMate_API.Migrations
                     b.Property<decimal?>("MinAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("PaymentMethodID")
+                    b.Property<int>("PaymentMethodID")
                         .HasColumnType("int");
 
                     b.Property<string>("RuleDescription")
-                        .HasColumnType("nvarchar(500)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RuleTitle")
                         .IsRequired()
@@ -791,7 +795,7 @@ namespace WatchMate_API.Migrations
 
                     b.HasKey("RuleId");
 
-                    b.ToTable("WithdrawRule", "dbo");
+                    b.ToTable("WithdrawRule");
                 });
 
             modelBuilder.Entity("WatchMate_API.Entities.AccountBalance", b =>

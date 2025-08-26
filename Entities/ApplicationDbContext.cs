@@ -20,6 +20,7 @@ namespace WatchMate_API.Entities
         public DbSet<AccountBalance> AccountBalance { get; set; }
         public DbSet<Withdraw> Withdraw { get; set; }
         public DbSet<ReferralReward> ReferralReward { get; set; }
+        public DbSet<WithdrawRule> WithdrawRule { get; set; }
 
     }
 }
