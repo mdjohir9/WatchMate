@@ -17,7 +17,7 @@ namespace WatchMate_API.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly ApplicationDbContext _dbContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
+        //Final watch and earn done before start version 2
         public VideoController(IUserRepository userRepository, IMemoryCache cache, IUnitOfWork unitOfWork, ApplicationDbContext dbContext, IHttpContextAccessor httpContextAccessor)
         {
             _userRepository = userRepository;
