@@ -13,5 +13,14 @@ namespace WatchMate_API.Entities
         public DbSet<CustomerPackage> CustomerPackage { get; set; }
         public DbSet<CustomerInfo> CustomerInfo { get; set; }
         public DbSet<AdVideo> AdVideo { get; set; }
+        public DbSet<Transctions> Transctions { get; set; }
+        public DbSet<TransactionType> TransactionType { get; set; }
+        public DbSet<PaymentMethod> PaymentMethod { get; set; }
+        public DbSet<PaymentAccount> PaymentAccount { get; set; }
+        public DbSet<AccountBalance> AccountBalance { get; set; }
+        public DbSet<Withdraw> Withdraw { get; set; }
+        public DbSet<ReferralReward> ReferralReward { get; set; }
+        public DbSet<WithdrawRule> WithdrawRule { get; set; }
+
     }
 }

@@ -15,6 +15,7 @@ namespace WatchMate_API.Repository
         Task<T> GetByCustomerIdWithForeignKeysAsync<T>(string customerId, params Expression<Func<T, object>>[] includeProperties) where T : class;
 
         Task AddAsync(T entity);
+        Task<T> AddAsyncReturn(T entity);
         Task UpdateAsync(T entity);
         Task UpdateAsync(T entity, string propertyName, object value);
 

@@ -10,6 +10,7 @@ namespace WatchMate_API.Repository
         //string GetUserDesignation(string EmpId);
         //IEnumerable<string> GetUserPermission(string userId);
         UserProfileDTO GetUserProfileInfo(int Id);
+        CustomerInfo GetCustomerInfoByUserId(int UserId);
         //CompanyStatusDTO GetUserCompany(int userId);
         UserRoles GetUserRoleByDataAccessLevel(int dataAccessLevel);
 

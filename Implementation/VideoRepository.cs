@@ -1,4 +1,5 @@
-﻿using WatchMate_API.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using WatchMate_API.Entities;
 using WatchMate_API.Repository;
 
 namespace WatchMate_API.Implementation
@@ -38,7 +39,103 @@ namespace WatchMate_API.Implementation
             }
 
             // Return public URL
-            return $"{request.Scheme}://{request.Host}/videos/{fileName}";
+            return $"{fileName}";
+        }
+
+        public async Task<IEnumerable<object>> GetCustomerAdVideos(int customerId)
+        {
+            var currentDate = DateTime.Now;
+            var request = _httpContextAccessor.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}";
+            var videos = await (from cp in _dbContext.CustomerPackage
+                                join p in _dbContext.Package on cp.PackageId equals p.PackageId
+                                join ci in _dbContext.CustomerInfo on cp.CustomerId equals ci.CustomerId
+                                join ac in _dbContext.AccountBalance on cp.CustomerId equals ac.CustomerId
+                                join v in _dbContext.AdVideo on 1 equals 1
+                                where cp.CustomerId == customerId
+                                    && cp.StartDate.AddDays(p.ValidityDays ?? 0) >= currentDate
+                                    && v.IsActive == true
+                                    && v.StartDate <= currentDate
+                                    && v.EndDate >= currentDate
+                                    && EF.Functions.Like("," + v.PackageIds.Replace("'", "") + ",", "%," + cp.PackageId.ToString() + ",%")
+                                select new
+                                {
+                                    ci.CustomerId,
+                                    ci.CustCardNo,
+                                    ci.FullName,
+                                    p.PackageName,
+                                    v.Title,
+                                    v.IsYouTubeVideo,
+                                    VideoUrl = string.IsNullOrEmpty(v.VideoUrl)
+                ? null
+                : (bool)v.IsYouTubeVideo
+                    ? v.VideoUrl
+                    : $"{baseUrl}/videos/{v.VideoUrl}",
+                                    v.RewardPerView,
+                                    p.PerAdReward,
+                                    p.MinDailyViews,
+                                    p.MaxDailyViews,
+                                    v.StartDate,
+                                    v.EndDate,
+                                    cp.PackageId,
+                                    ac.Id,
+                                    p.PerDayReward,
+                                    v.MinWatchingTime,
+                                    v.MaxWatchingTime
+                                }).ToListAsync();
+
+
+            return videos;
+        }
+
+        public async Task<IEnumerable<object>> GetAdVideos()
+        {
+            var currentDate = DateTime.Now;
+            var request = _httpContextAccessor.HttpContext.Request;
+            var baseUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}";
+
+            var videosFromDb = await _dbContext.AdVideo
+                .AsNoTracking()
+                .ToListAsync(); // fetch DB first
+
+            var packages = await _dbContext.Package.AsNoTracking().ToListAsync();
+
+            var videos = videosFromDb.Select(v =>
+            {
+                var packageIds = v.PackageIds?
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim('\''))
+                    .Select(int.Parse)
+                    .ToList() ?? new List<int>();
+
+                var packageNames = packages
+                    .Where(p => packageIds.Contains(p.PackageId))
+                    .Select(p => p.PackageName)
+                    .ToList();
+
+                return new
+                {
+                    v.AdVideoId,
+                    v.Title,
+                    v.IsYouTubeVideo,
+                    VideoUrl = string.IsNullOrEmpty(v.VideoUrl)
+                        ? null
+                        : (bool)v.IsYouTubeVideo
+                            ? v.VideoUrl
+                            : $"{baseUrl}/videos/{v.VideoUrl}",
+                    v.RewardPerView,
+                    v.StartDate,
+                    v.EndDate,
+                    v.CreatedAt,
+                    v.IsActive,
+                    v.MinWatchingTime,
+                    v.MaxWatchingTime,
+                    PackageNames = string.Join(", ", packageNames)
+                };
+            }).ToList();
+
+            return videos;
+
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using WatchMate_API.DTO.Customer;
 using WatchMate_API.DTO.Settings;
 using WatchMate_API.Entities;
 using WatchMate_API.Repository;
@@ -28,25 +29,19 @@ namespace WatchMate_API.Controllers
         }
 
         [HttpGet]
-        [Route("user-packages")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [Route("packages")]
         public async Task<IActionResult> GetUserPackages()
         {
             try
             {
-                string cacheKey = "user_packages";
-                if (!_cache.TryGetValue(cacheKey, out List<CustomerPackage> cachedList))
-                {
+              
                     var userPackages = await _unitOfWork.UserPackages.GetAllAsync();
                     if (userPackages == null || !userPackages.Any())
                         return NotFound(new { StatusCode = 404, message = "User packages not found." });
 
-                    var list = userPackages.ToList();
-                    _cache.Set(cacheKey, list, TimeSpan.FromMinutes(1));
-                    return Ok(new { StatusCode = 200, message = "Success", data = list });
-                }
 
-                return Ok(new { StatusCode = 200, message = "Success", data = cachedList });
+                    return Ok(new { StatusCode = 200, message = "Success", data = userPackages });
+
             }
             catch (Exception ex)
             {
@@ -55,27 +50,130 @@ namespace WatchMate_API.Controllers
         }
 
         [HttpGet]
-        [Route("user-package/{id}")]
+        [Route("package/{id}")]
         public async Task<IActionResult> GetUserPackage(int id)
         {
             try
             {
-                string cacheKey = $"user_package_{id}";
-                if (!_cache.TryGetValue(cacheKey, out CustomerPackage cachedItem))
+             
+                var result = await _unitOfWork.UserPackages.GetByIdAsync(id);
+                if (result == null)
                 {
-                    var result = await _unitOfWork.UserPackages.GetByIdAsync(id);
-                    if (result == null)
-                        return NotFound(new { StatusCode = 404, message = "User package not found." });
-
-                    _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
-                    return Ok(new { StatusCode = 200, message = "Success", data = result });
+                    return NotFound(new { StatusCode = 404, message = "User package not found." });
                 }
-
-                return Ok(new { StatusCode = 200, message = "Success", data = cachedItem });
+                return Ok(new { StatusCode = 200, message = "Success", data = result });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { StatusCode = 500, message = "Error retrieving user package", error = ex.Message });
+            }
+        }
+
+        [HttpGet("get-customer-package")]
+        public async Task<IActionResult> GetCustomerPackages([FromQuery] int? customerId)
+        {
+            try
+            {
+               
+              
+                 var result = await _unitOfWork.UserPackages.GetCustomerPackageByCustomerId(customerId);
+
+                if (result == null || !result.Any()) {
+                    return NotFound(new { StatusCode = 404, message = "Customer package(s) not found." });
+                }
+                 
+                return Ok(new { StatusCode = 200, message = "Success", data = result });
+        
+
+               
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { StatusCode = 500, message = "Error retrieving customer packages", error = ex.Message });
+            }
+        }
+
+
+        [HttpPut("package/approve/{id}")]
+        public async Task<IActionResult> ApprovePackageRequest(int id, byte Status, int userId)
+        {
+            using var transaction = await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var packageRequest = await _unitOfWork.UserPackages.GetByIdAsync(id);
+                var package = await _unitOfWork.Package.GetByIdAsync(packageRequest.PackageId);
+                if (packageRequest == null)
+                    return NotFound(new { StatusCode = 404, Message = $"Package request with ID {id} not found." });
+
+                if (packageRequest.Status == 1) // already active
+                    return BadRequest(new { StatusCode = 400, Message = "Package request already approved/active." });
+
+                if (Status == 2)
+                {
+                    packageRequest.Status = 2; // Rejected
+                    packageRequest.UpdatedAt = DateTime.UtcNow;
+                    packageRequest.UpdatedBy = userId;
+                    
+                    await _unitOfWork.UserPackages.UpdateAsync(packageRequest);
+
+                    await _unitOfWork.Save();
+                    await transaction.CommitAsync();
+
+                    return Ok(new { StatusCode = 200, Message = "Package request rejected successfully." });
+                }
+                if (!string.IsNullOrWhiteSpace(packageRequest.UsedReferralCode))
+                {
+                    await _unitOfWork.Referral.ApplyReferralRewardAsync(
+                        packageRequest.UsedReferralCode,
+                        packageRequest.CustomerId,
+                        packageRequest.PackageId
+                    );
+                }
+
+
+                // ✅ Approval Process
+                packageRequest.Status = 1; // Active
+                                           // Fix for CS1061: 'DateTime' does not contain a definition for 'Value'
+                                           // The issue occurs because 'DateTime' is a non-nullable value type and does not have a 'Value' property.
+                                           // The correct approach is to directly use the 'DateTime' instance without accessing a 'Value' property.
+
+          
+
+                packageRequest.StartDate = DateTime.UtcNow;
+               packageRequest.ExpiryDate = package.ValidityDays.HasValue
+                    ? packageRequest.StartDate.AddDays(package.ValidityDays.Value) // Removed '.Value' from 'StartDate'
+                    : null;
+                packageRequest.UpdatedAt = DateTime.UtcNow;
+                packageRequest.UpdatedBy = userId;
+                await _unitOfWork.UserPackages.UpdateAsync(packageRequest);
+
+
+           
+                var transactionRecord = new Transctions
+                {
+                    TransactionType = 4, 
+                    Amount = packageRequest.PackagePrice,
+                    TransactionDate = DateTime.UtcNow,
+                    UserId = packageRequest.CustomerId,
+                    PaytMethodID = packageRequest.PayAcId ?? 0,
+                    Remarks = $"Package purchase approved for request ID {packageRequest.Id}"
+                };
+                await _unitOfWork.Transaction.AddAsync(transactionRecord);
+
+                await _unitOfWork.Save();
+                await transaction.CommitAsync();
+
+                return Ok(new { StatusCode = 200, Message = "Package approved and activated successfully." });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An error occurred while approving the package request.",
+                    Error = ex.Message
+                });
             }
         }
 
@@ -95,7 +193,10 @@ namespace WatchMate_API.Controllers
                 var package = await _unitOfWork.Package.GetByIdAsync(dto.PackageId);
                 if (package == null)
                     return NotFound(new { StatusCode = 404, message = "Package not found." });
-
+                if (await _unitOfWork.UserPackages.HasCustomerBoughtPackageAsync(dto.CustomerId, dto.PackageId))
+                {
+                    return BadRequest(new { StatusCode = 400, message = "You already purchased the package. So You Dont Buy Second Time on this account" });
+                }
                 var startDate = DateTime.Now;
                 var expiryDate = package.ValidityDays.HasValue
                     ? startDate.AddDays(package.ValidityDays.Value)
@@ -105,11 +206,15 @@ namespace WatchMate_API.Controllers
                 {
                     CustomerId = dto.CustomerId,
                     PackageId = dto.PackageId,
+                    PackagePrice = package.Price,
                     StartDate = startDate,
                     ExpiryDate = (DateTime)expiryDate,
-                    IsActive = dto.IsActive,
+                    Status = 0,
                     CreatedAt = DateTime.Now,
-                    CreatedBy = dto.UserId
+                    CreatedBy = dto.UserId,
+                    PayAcId = dto.PayMethodID,
+                    TransctionCode =dto.TransctionCode,
+                    UsedReferralCode = dto.UsedReferralCode
                 };
 
                 await _unitOfWork.UserPackages.AddAsync(userPackage);
@@ -145,9 +250,12 @@ namespace WatchMate_API.Controllers
                 existing.CustomerId = dto.CustomerId;
                 existing.PackageId = dto.PackageId;
                 existing.StartDate = DateTime.Now;
-                existing.IsActive = dto.IsActive;
+                existing.Status = dto.Status;
                 existing.UpdatedAt = DateTime.Now;
                 existing.UpdatedBy=dto.UserId;
+                existing.PayAcId = dto.PayMethodID;
+                existing.TransctionCode = dto.TransctionCode;
+                existing.UsedReferralCode = dto.UsedReferralCode;
 
                 await _unitOfWork.UserPackages.UpdateAsync(existing);
                 await _unitOfWork.Save();
@@ -169,17 +277,50 @@ namespace WatchMate_API.Controllers
         {
             try
             {
-                 _unitOfWork.UserPackages.DeleteAsync(id);
+                await _unitOfWork.UserPackages.DeleteAsync(id);
+                await _unitOfWork.Save();
 
-                _cache.Remove("user_packages");
-                _cache.Remove($"user_package_{id}");
+                // ✅ Clear all possible cache keys related to customer packages
+                _cache.Remove("customer_package_all");
+                _cache.Remove($"customer_package_{id}");
 
                 return Ok(new { StatusCode = 200, message = "User package deleted successfully." });
+            }
+            catch (KeyNotFoundException knfEx)
+            {
+                return NotFound(new { StatusCode = 404, message = knfEx.Message });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { StatusCode = 500, message = "Deletion failed", error = ex.Message });
             }
         }
+
+
+        [HttpDelete]
+        [Route("delete-by-customer/{id}")]
+        public async Task<IActionResult> DeleteUserByeCustomerPackage(int id)
+        {
+            try
+            {
+                await _unitOfWork.UserPackages.DeleteCustomerPackageAsync(id);
+                await _unitOfWork.Save();
+
+                // ✅ Clear all possible cache keys related to customer packages
+                _cache.Remove("customer_package_all");
+                _cache.Remove($"customer_package_{id}");
+
+                return Ok(new { StatusCode = 200, message = "User package deleted successfully." });
+            }
+            catch (KeyNotFoundException knfEx)
+            {
+                return NotFound(new { StatusCode = 404, message = knfEx.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { StatusCode = 500, message = "Deletion failed", error = ex.Message });
+            }
+        }
+
     }
 }

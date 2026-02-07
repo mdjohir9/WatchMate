@@ -25,7 +25,13 @@ namespace WatchMate_API.Implementation
             Login = new LoginRepository(_dbContext, _configuration);
             CustomerInfo = new CustomerlInfoRepository(_dbContext, _httpContextAccessor);
             Video = new VideoRepository(_dbContext, _httpContextAccessor);
-
+            Transaction = new TransctionRepository(_dbContext, _httpContextAccessor);
+            Account = new AccountRepository(_dbContext);
+            Withdraw = new WithdrawRepository(_dbContext, _httpContextAccessor);
+            Payment = new PaymentAccountRepository(_dbContext, _httpContextAccessor);
+            Referral = new ReferralRewardRepository(_dbContext);
+            WithdrawRule = new WithdrawRuleRepository(_dbContext);
+           
         }
         public IUserRepository User { get; private set; }
         public IUserRoleRepository UserRole { get; private set; }
@@ -34,6 +40,13 @@ namespace WatchMate_API.Implementation
         public ICustomerPackageRepository UserPackages { get; private set; }
         public ICustomerlInfoRepository CustomerInfo { get; private set; }
         public IVideoRepository Video { get; private set; }
+        public ITransctionRepository Transaction { get; private set; }
+        public IAccountRepository Account { get; private set; }
+
+        public IWithdrawRepository Withdraw { get; private set; }
+        public IPaymnetAccountRepository Payment { get; private set; }
+        public IReferralReward Referral { get; private set; }
+        public IWithdrawRuleRepository WithdrawRule { get; private set; }
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {

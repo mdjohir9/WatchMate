@@ -22,7 +22,32 @@ namespace WatchMate_API.Controllers
             _cache = cache;
             _httpContextAccessor = httpContextAccessor;
         }
+        [HttpGet]
+        [Route("custommerIdName")]
+        public async Task<IActionResult> GetCustommerIdNameById(int? customerId)
+        {
+            try
+            {
 
+                var result = await _unitOfWork.CustomerInfo.GetAllCustommerSummaryAsync(customerId);
+
+                if (result == null)
+                {
+                    return NotFound(new { StatusCode = 404, message = "Customer not found!" });
+                }
+
+                // Cache the result for future requests
+
+
+                return Ok(new { StatusCode = 200, message = "Success", data = result });
+
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { StatusCode = 500, message = "An error occurred", error = ex.Message });
+            }
+        }
 
         [HttpGet("customers")]
         public async Task<IActionResult> GetAllCustomers()
@@ -32,7 +57,7 @@ namespace WatchMate_API.Controllers
                 string cacheKey = "all_customers";
                 if (!_cache.TryGetValue(cacheKey, out List<CustomerInfo> cachedList))
                 {
-                    var customers = await _unitOfWork.CustomerInfo.GetAllAsync();
+                    var customers = await _unitOfWork.CustomerInfo.GetAllWithDetailsAsync();
                     if (customers == null || !customers.Any())
                         return NotFound(new { StatusCode = 404, message = "No customer data found." });
 
@@ -48,7 +73,7 @@ namespace WatchMate_API.Controllers
             }
         }
 
-        [HttpGet("customer{id}")]
+        [HttpGet("customer/{id}")]
         public async Task<IActionResult> GetCustomerById(int id)
         {
             try
@@ -71,6 +96,53 @@ namespace WatchMate_API.Controllers
                 return StatusCode(500, new { StatusCode = 500, message = "Error retrieving customer", error = ex.Message });
             }
         }
+
+        [HttpPost("image-update")]
+        public async Task<IActionResult> UpdateCustomerImage([FromBody] CustomerImageUpdateDTO dto)
+        {
+            try
+            {
+                if (dto == null)
+                    return BadRequest(new { StatusCode = 400, message = "Invalid request data" });
+
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                // Find existing customer
+                var customer = await _unitOfWork.CustomerInfo.GetByIdAsync(dto.CustomerId);
+                if (customer == null)
+                    return NotFound(new { StatusCode = 404, message = "Customer not found" });
+
+                // Save new image using your existing method
+                var savedImagePath = await _unitOfWork.CustomerInfo.SaveDocumentsListsAsync(
+                    dto.ImageBase64List,
+                    customer.CustCardNo,
+                    "1111",
+                    "CustommerImage" // or another document type you prefer
+                );
+
+                // Update only the image field
+                customer.CustmerImage = savedImagePath;
+                _unitOfWork.CustomerInfo.UpdateAsync(customer);
+                await _unitOfWork.Save();
+
+                // Clear cache if needed
+                _cache.Remove("all_customers");
+
+                return Ok(new { StatusCode = 200, message = "Customer image updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    message = "Error updating customer image",
+                    error = ex.Message
+                });
+            }
+        }
+
+
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateCustomer([FromBody] CustomerInfoCreateDTO dto)
@@ -151,11 +223,14 @@ namespace WatchMate_API.Controllers
                 if (customer == null)
                     return NotFound(new { StatusCode = 404, message = "Customer not found" });
 
-                customer.Deleted = true;
-                customer.DeletedAt = DateTime.Now;
-                customer.DeletedBy = 1; // Replace with logged-in user ID
+                //customer.Deleted = true;
+                //customer.DeletedAt = DateTime.Now;
+                //customer.DeletedBy = 1; // Replace with logged-in user ID
 
-                await _unitOfWork.CustomerInfo.UpdateAsync(customer);
+                await _unitOfWork.User.DeleteAsync(customer.UserId);
+                await _unitOfWork.CustomerInfo.DeleteAsync(id);
+                //await _unitOfWork.Account.DeleteAsync(customer.CustomerId);
+               // await _unitOfWork.UserPackages.DeleteAsync(customer.CustomerId);
                 await _unitOfWork.Save();
 
                 _cache.Remove("all_customers");

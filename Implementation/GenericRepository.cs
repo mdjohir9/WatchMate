@@ -78,6 +78,12 @@ namespace WatchMate_API.Implementation
             await _dbSet.AddAsync(entity);
 
         }
+
+        public async Task<T> AddAsyncReturn(T entity)
+        {
+            await _dbSet.AddAsync(entity);
+            return entity;
+        }
         public async Task<T> GetByCustomerIdWithForeignKeysAsync<T>(string customerId, params Expression<Func<T, object>>[] includeProperties) where T : class
         {
             IQueryable<T> query = (IQueryable<T>)_dbSet;

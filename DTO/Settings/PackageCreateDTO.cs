@@ -16,9 +16,11 @@ namespace WatchMate_API.DTO.Settings
         public int? MaxDailyViews { get; set; }
 
         public decimal? PerAdReward { get; set; }
+        public decimal? PerDayReward { get; set; }
+        public decimal? RefBonus { get; set; }
 
         [Required]
-        public byte? IsActive { get; set; }
+        public byte? Status { get; set; }
         public int? UserId { get; set; }
     }
 }

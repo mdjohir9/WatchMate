@@ -20,9 +20,12 @@ namespace WatchMate_API.Entities
         public int? MinDailyViews { get; set; }
 
         public decimal? PerAdReward { get; set; }
+        public decimal? PerDayReward { get; set; }
+        public decimal? RefBonus { get; set; }
 
         [Required]
-        public byte? IsActive { get; set; }
+        public byte? Status { get; set; }
+        public byte? IsFree { get; set; }
         public DateTime? CreatedAt { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? UpdatedAt { get; set; }

@@ -21,9 +21,9 @@ namespace WatchMate_API.Entities
         // Foreign key to Customer
         [Required]
         public int UserId { get; set; }
-
         [Required]
-        public int PaytMethodID { get; set; }
+        public int CustomerId { get; set; }
+        public int? PaytMethodID { get; set; }
 
 
         public string? Remarks { get; set; }

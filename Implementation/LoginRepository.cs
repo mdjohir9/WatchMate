@@ -48,6 +48,15 @@ namespace WatchMate_API.Implementation
 
         //    return companyDetails;
         //}
+
+        public CustomerInfo GetCustomerInfoByUserId(int userId)
+        {
+            var custInfo = _dbContext.CustomerInfo
+                .FirstOrDefault(u => u.UserId == userId);
+
+            return custInfo;
+        }
+
         public UserProfileDTO GetUserProfileInfo(int id)
         {
             var user = _dbContext.UserRole

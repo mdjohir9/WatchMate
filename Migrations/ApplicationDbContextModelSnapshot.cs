@@ -22,6 +22,57 @@ namespace WatchMate_API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("WatchMate_API.Entities.AccountBalance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountNo")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("BalanceAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("Deleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("IsActive")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountNo")
+                        .IsUnique();
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("AccountBalance");
+                });
+
             modelBuilder.Entity("WatchMate_API.Entities.AdVideo", b =>
                 {
                     b.Property<int>("AdVideoId")
@@ -38,6 +89,15 @@ namespace WatchMate_API.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<bool?>("IsYouTubeVideo")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeSpan?>("MaxWatchingTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan?>("MinWatchingTime")
+                        .HasColumnType("time");
 
                     b.Property<string>("PackageIds")
                         .HasColumnType("nvarchar(max)");
@@ -117,6 +177,13 @@ namespace WatchMate_API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("ReferralCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("ReferralEarnings")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -131,6 +198,9 @@ namespace WatchMate_API.Migrations
                     b.HasIndex("CustCardNo")
                         .IsUnique()
                         .HasFilter("[CustCardNo] IS NOT NULL");
+
+                    b.HasIndex("ReferralCode")
+                        .IsUnique();
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -164,17 +234,26 @@ namespace WatchMate_API.Migrations
                     b.Property<int?>("DeletedBy")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ExpiryDate")
+                    b.Property<DateTime?>("ExpiryDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
 
                     b.Property<int>("PackageId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("PackagePrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("PayAcId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<byte>("Status")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("TransctionCode")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -182,11 +261,16 @@ namespace WatchMate_API.Migrations
                     b.Property<int?>("UpdatedBy")
                         .HasColumnType("int");
 
+                    b.Property<string>("UsedReferralCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("PackageId");
+
+                    b.HasIndex("PayAcId");
 
                     b.ToTable("CustomerPackage");
                 });
@@ -214,7 +298,7 @@ namespace WatchMate_API.Migrations
                     b.Property<int?>("DeletedBy")
                         .HasColumnType("int");
 
-                    b.Property<byte>("IsActive")
+                    b.Property<byte?>("IsFree")
                         .HasColumnType("tinyint");
 
                     b.Property<int?>("MaxDailyViews")
@@ -231,8 +315,17 @@ namespace WatchMate_API.Migrations
                     b.Property<decimal?>("PerAdReward")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal?>("PerDayReward")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("RefBonus")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<byte>("Status")
+                        .HasColumnType("tinyint");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -246,6 +339,172 @@ namespace WatchMate_API.Migrations
                     b.HasKey("PackageId");
 
                     b.ToTable("Package");
+                });
+
+            modelBuilder.Entity("WatchMate_API.Entities.PaymentAccount", b =>
+                {
+                    b.Property<int>("PayAcId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PayAcId"));
+
+                    b.Property<string>("AccountName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AccountNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BankOrWalletName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Logo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PayAcId");
+
+                    b.ToTable("PaymentAccount");
+                });
+
+            modelBuilder.Entity("WatchMate_API.Entities.PaymentMethod", b =>
+                {
+                    b.Property<int>("PayMethodID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PayMethodID"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("PayMethodID");
+
+                    b.ToTable("PaymentMethod");
+                });
+
+            modelBuilder.Entity("WatchMate_API.Entities.ReferralReward", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PackageId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReferredUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReferrerId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("RewardAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReferralReward", "dbo");
+                });
+
+            modelBuilder.Entity("WatchMate_API.Entities.TransactionType", b =>
+                {
+                    b.Property<int>("TransactionTypeID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionTypeID"));
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCredit")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("TransactionTypeID");
+
+                    b.ToTable("TransactionType");
+                });
+
+            modelBuilder.Entity("WatchMate_API.Entities.Transctions", b =>
+                {
+                    b.Property<int>("TransctionID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransctionID"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PaytMethodID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TransactionType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TransctionID");
+
+                    b.ToTable("Transctions");
                 });
 
             modelBuilder.Entity("WatchMate_API.Entities.UserRoles", b =>
@@ -395,6 +654,157 @@ namespace WatchMate_API.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("WatchMate_API.Entities.Withdraw", b =>
+                {
+                    b.Property<int>("WithdrawaID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WithdrawaID"));
+
+                    b.Property<string>("AccountNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("AdminRemarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("ApplyedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ApplyedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ApproveAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ApproveBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("int");
+
+                    b.Property<int?>("BankId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("IsApproved")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PaymentMethodID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("RejectAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("RejectBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("RequestedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("RuleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TransactionCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("WithdrawaID");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("RuleId");
+
+                    b.ToTable("Withdraw");
+                });
+
+            modelBuilder.Entity("WatchMate_API.Entities.WithdrawRule", b =>
+                {
+                    b.Property<int>("RuleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RuleId"));
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("DailyLimit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("FeePercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("MaxAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MinAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("PaymentMethodID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RuleDescription")
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("RuleTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("RuleId");
+
+                    b.ToTable("WithdrawRule", "dbo");
+                });
+
+            modelBuilder.Entity("WatchMate_API.Entities.AccountBalance", b =>
+                {
+                    b.HasOne("WatchMate_API.Entities.CustomerInfo", "CustomerInfo")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CustomerInfo");
+                });
+
             modelBuilder.Entity("WatchMate_API.Entities.CustomerInfo", b =>
                 {
                     b.HasOne("WatchMate_API.Entities.Users", "Users")
@@ -420,9 +830,32 @@ namespace WatchMate_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WatchMate_API.Entities.PaymentAccount", "PaymentAccount")
+                        .WithMany()
+                        .HasForeignKey("PayAcId");
+
                     b.Navigation("CustomerInfo");
 
                     b.Navigation("Package");
+
+                    b.Navigation("PaymentAccount");
+                });
+
+            modelBuilder.Entity("WatchMate_API.Entities.Withdraw", b =>
+                {
+                    b.HasOne("WatchMate_API.Entities.CustomerInfo", "CustomerInfo")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WatchMate_API.Entities.WithdrawRule", "WithdrawRule")
+                        .WithMany()
+                        .HasForeignKey("RuleId");
+
+                    b.Navigation("CustomerInfo");
+
+                    b.Navigation("WithdrawRule");
                 });
 #pragma warning restore 612, 618
         }

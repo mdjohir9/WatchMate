@@ -6,7 +6,7 @@ namespace WatchMate_API.Entities
 {
     [Index(nameof(UserId), IsUnique = true)]
     [Index(nameof(CustCardNo), IsUnique = true)]
-
+    [Index(nameof(ReferralCode), IsUnique = true)]
     public class CustomerInfo
     {
         [Key]
@@ -32,6 +32,9 @@ namespace WatchMate_API.Entities
 
         [MaxLength(50)]
         public string? NIDOrPassportNumber { get; set; }
+        public string ReferralCode { get; set; } = null!;
+        public decimal ReferralEarnings { get; set; } = 0;
+
         public DateTime? CreatedAt { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? UpdatedAt { get; set; }

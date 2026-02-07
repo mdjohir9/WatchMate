@@ -17,7 +17,7 @@ namespace WatchMate_API.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly ApplicationDbContext _dbContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
+        //Final watch and earn done before start version 2
         public VideoController(IUserRepository userRepository, IMemoryCache cache, IUnitOfWork unitOfWork, ApplicationDbContext dbContext, IHttpContextAccessor httpContextAccessor)
         {
             _userRepository = userRepository;
@@ -46,6 +46,24 @@ namespace WatchMate_API.Controllers
                 return StatusCode(500, new { StatusCode = 500, message = "An error occurred", error = ex.Message });
             }
         }
+        [HttpGet]
+        [Route("videos/{customerId}")]
+        public async Task<IActionResult> GetAdVideos(int customerId)
+        {
+            try
+            {
+                var videos = await _unitOfWork.Video.GetCustomerAdVideos(customerId);
+
+                if (videos == null || !videos.Any())
+                    return NotFound(new { StatusCode = 404, message = "Ad videos not found." });
+
+                return Ok(new { StatusCode = 200, message = "Success", data = videos });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { StatusCode = 500, message = "An error occurred", error = ex.Message });
+            }
+        }
 
 
         [HttpGet]
@@ -54,7 +72,7 @@ namespace WatchMate_API.Controllers
         {
             try
             {
-                var videos = await _unitOfWork.Video.GetAllAsync();
+                var videos = await _unitOfWork.Video.GetAdVideos();
                 if (videos == null || !videos.Any())
                 {
                     return NotFound(new { StatusCode = 404, message = "Ad videos not found." });
@@ -67,10 +85,110 @@ namespace WatchMate_API.Controllers
                 return StatusCode(500, new { StatusCode = 500, message = "An error occurred", error = ex.Message });
             }
         }
+        //[HttpPost]
+        //[Route("videos/reward")]
+        //public async Task<IActionResult> AddVideoReward(int customerId, int accountNo, decimal perAdReward)
+        //{
+        //    try
+        //    {
+        //        // ✅ Optional: validate if customer exists
+        //        var customer = await _unitOfWork.CustomerInfo.GetByIdAsync(customerId);
+        //        if (customer == null)
+        //            return NotFound(new { StatusCode = 404, message = "Customer not found." });
+
+        //        // ✅ Get AccountBalance record
+        //        var accountBalance = await _unitOfWork.Account.GetByIdAsync(accountNo);
+
+        //        if (accountBalance == null)
+        //            return NotFound(new { StatusCode = 404, message = "Account balance not found." });
+
+        //        // ✅ Add reward
+        //        accountBalance.BalanceAmount += perAdReward;
+        //        accountBalance.UpdatedAt = DateTime.Now;
+
+        //        await _unitOfWork.Account.UpdateAsync(accountBalance);
+
+
+        //        await _unitOfWork.Save();
+        //        var transactionRecord = new Transctions
+        //        {
+        //            TransactionType = 2,
+        //            Amount = perAdReward,
+        //            TransactionDate = DateTime.UtcNow,
+        //            CustomerId = customerId,
+        //            Remarks = $"Reward earned from watching advertisements. Customer ID {customerId}"
+        //        };
+
+        //        await _unitOfWork.Transaction.AddAsync(transactionRecord);
+
+        //        await _unitOfWork.Save();
+        //        return Ok(new { StatusCode = 200, message = "Reward added successfully", rewardAmount = perAdReward, totalBalance = accountBalance.BalanceAmount });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { StatusCode = 500, message = "An error occurred", error = ex.Message });
+        //    }
+        //}
+        [HttpPost]
+        [Route("videos/reward")]
+        public async Task<IActionResult> AddVideoReward([FromBody] VideoRewardDTO dto)
+        {
+            try
+            {
+                // ✅ Validate customer
+                var customer = await _unitOfWork.CustomerInfo.GetByIdAsync(dto.CustomerId);
+                if (customer == null)
+                    return NotFound(new { StatusCode = 404, message = "Customer not found." });
+
+                // ✅ Validate account
+                var accountBalance = await _unitOfWork.Account.GetByIdAsync(dto.AccountNo);
+                if (accountBalance == null)
+                    return NotFound(new { StatusCode = 404, message = "Account balance not found." });
+                DateTime today = DateTime.UtcNow.Date;
+                bool alreadyRewarded = await _unitOfWork.Transaction.HasRewardTransactionAsync(dto.CustomerId, today, 2);
+
+                if (alreadyRewarded)
+                {
+                    return BadRequest(new
+                    {
+                        StatusCode = 400,
+                        message = "Reward already given for today."
+                    });
+                }
+                accountBalance.BalanceAmount += dto.PerAdReward;
+                accountBalance.UpdatedAt = DateTime.Now;
+
+                await _unitOfWork.Account.UpdateAsync(accountBalance);
+                await _unitOfWork.Save();
+
+                var transactionRecord = new Transctions
+                {
+                    TransactionType = 2,
+                    Amount = dto.PerAdReward,
+                    TransactionDate = DateTime.UtcNow,
+                    CustomerId = dto.CustomerId,
+                    Remarks = $"Reward earned from watching advertisements. Customer ID {dto.CustomerId}"
+                };
+
+                await _unitOfWork.Transaction.AddAsync(transactionRecord);
+                await _unitOfWork.Save();
+
+                return Ok(new
+                {
+                    StatusCode = 200,
+                    message = "Reward added successfully",
+                    rewardAmount = dto.PerAdReward,
+                    totalBalance = accountBalance.BalanceAmount
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { StatusCode = 500, message = "An error occurred", error = ex.Message });
+            }
+        }
 
         [HttpPost("create")]
-        [RequestSizeLimit(524288000)]
-        public async Task<IActionResult> Create([FromForm] AdVideoCreateDTO dto, IFormFile videoFile)
+        public async Task<IActionResult> Create([FromForm] AdVideoCreateDTO dto, IFormFile? videoFile)
         {
             if (!ModelState.IsValid || dto.PackageIds == null || !dto.PackageIds.Any())
                 return BadRequest("Invalid data.");
@@ -78,7 +196,20 @@ namespace WatchMate_API.Controllers
             string videoUrl;
             try
             {
-                videoUrl = await _unitOfWork.Video.SaveVideoAsync(videoFile, Request);
+                if (dto.IsYouTubeVideo == true)
+                {
+                    if (string.IsNullOrWhiteSpace(dto.YoutubeVideoUrl))
+                        return BadRequest("YouTube video URL is required for YouTube videos.");
+
+                    videoUrl = dto.YoutubeVideoUrl;
+                }
+                else
+                {
+                    if (videoFile == null || videoFile.Length == 0)
+                        return BadRequest("Video file is required when not using YouTube URL.");
+
+                    videoUrl = await _unitOfWork.Video.SaveVideoAsync(videoFile, Request);
+                }
             }
             catch (Exception ex)
             {
@@ -89,19 +220,22 @@ namespace WatchMate_API.Controllers
             {
                 Title = dto.Title,
                 VideoUrl = videoUrl,
+                IsYouTubeVideo = dto.IsYouTubeVideo,
                 StartDate = dto.StartDate,
-                EndDate = dto.EndDate, 
+                EndDate = dto.EndDate,
                 RewardPerView = dto.RewardPerView,
                 IsActive = dto.IsActive,
                 CreatedAt = DateTime.Now,
                 PackageIds = dto.PackageIds,
+                MaxWatchingTime = dto.MaxWatchingTime,
+                MinWatchingTime = dto.MinWatchingTime
             };
 
             await _unitOfWork.Video.AddAsync(video);
             await _unitOfWork.Save();
             _cache.Remove("ad_videos");
 
-            return Ok(new { StatusCode = 200, message = "Ad video created with upload.", videoUrl });
+            return Ok(new { StatusCode = 200, message = "Ad video created successfully.", videoUrl });
         }
 
 
@@ -112,18 +246,32 @@ namespace WatchMate_API.Controllers
             if (video == null)
                 return NotFound(new { StatusCode = 404, message = "Ad video not found." });
 
-            // Delete video file from server
-            var videoPath = video.VideoUrl;
-            var fileName = Path.GetFileName(new Uri(videoPath).AbsolutePath);
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos", fileName);
+            // Determine file path
+            string filePath = null;
 
-            if (System.IO.File.Exists(filePath))
+            if (!string.IsNullOrEmpty(video.VideoUrl))
             {
-                System.IO.File.Delete(filePath);
+                if (Uri.IsWellFormedUriString(video.VideoUrl, UriKind.Absolute))
+                {
+                    // It's a URL, get the file name
+                    var fileName = Path.GetFileName(new Uri(video.VideoUrl).AbsolutePath);
+                    filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos", fileName);
+                }
+                else
+                {
+                    // It's already a relative path / file name
+                    filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos", video.VideoUrl);
+                }
+
+                // Delete file if exists
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
             }
 
             // Delete from database
-            _unitOfWork.Video.DeleteAsync(id);
+            await _unitOfWork.Video.DeleteAsync(id);
             await _unitOfWork.Save();
 
             // Remove cache
@@ -131,6 +279,7 @@ namespace WatchMate_API.Controllers
 
             return Ok(new { StatusCode = 200, message = "Ad video deleted successfully." });
         }
+
 
     }
 }

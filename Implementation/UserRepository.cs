@@ -138,19 +138,19 @@ namespace WatchMate_API.Implementation
                     icon = "appstore-add",
                     submenu = new List<object>()
                 });
-                menu.Add(new
-                {
-                    path = "",
-                    title = "About Me",
-                    iconType = "nzIcon",
-                    iconTheme = "outline",
-                    icon = "user",
-                    submenu = new List<object>
-            {
-                new { path = "custommer/add", title = "Add Personnel Info", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new  { path = "custommer/profile",  title = "My Profile",   iconType = "",  icon = "", iconTheme = "",  submenu = new List<object>() },
-                    }
-                });
+            //    menu.Add(new
+            //    {
+            //        path = "",
+            //        title = "About Me",
+            //        iconType = "nzIcon",
+            //        iconTheme = "outline",
+            //        icon = "user",
+            //        submenu = new List<object>
+            //{
+            //    new { path = "custommer/add", title = "Add Personnel Info", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new  { path = "custommer/profile",  title = "My Profile",   iconType = "",  icon = "", iconTheme = "",  submenu = new List<object>() },
+            //        }
+            //    });
                 // Wallet
                 menu.Add(new
                 {
@@ -161,8 +161,8 @@ namespace WatchMate_API.Implementation
                     icon = "wallet",
                     submenu = new List<object>
             {
-                new { path = "wallet/recharge", title = "Recharge", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "wallet/all-recharge", title = "Recharge List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "wallet/recharge", title = "Recharge", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "wallet/all-recharge", title = "Recharge List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "wallet/withdraw", title = "Withdraw", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "wallet/withdraw-bye-customer", title = "Withdraw List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
             }
@@ -178,30 +178,43 @@ namespace WatchMate_API.Implementation
                     submenu = new List<object>
             {
                 new { path = "userPackages/add-package", title = "Buy Packages", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "userPackages/package-list", title = "Packages List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                new { path = "userPackages/cutomer-package-list", title = "My Packages", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
 
             }
                 });
+                menu.Add(new
+                {
+                    path = "",
+                    title = "Task",
+                    iconType = "nzIcon",
+                    iconTheme = "outline",
+                    icon = "wallet",
+                    submenu = new List<object>
+            {
+                new { path = "task/my-task", title = "My Task", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "userPackages/package-list", title = "Packages List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
 
+            }
+                });
                 // Custommer
 
 
                 // Loan
-                menu.Add(new
-                {
-                    path = "",
-                    title = "Loan",
-                    iconType = "nzIcon",
-                    iconTheme = "outline",
-                    icon = "stock",
-                    submenu = new List<object>
-            {
-                new { path = "/loan/loan-Application", title = "Loan Application", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "/loan/customer-loan-request", title = "Application List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "/loan/customer-loan-list", title = "Loan List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "/loan/instalment", title = "Instalments", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() }
-            }
-                });
+            //    menu.Add(new
+            //    {
+            //        path = "",
+            //        title = "Loan",
+            //        iconType = "nzIcon",
+            //        iconTheme = "outline",
+            //        icon = "stock",
+            //        submenu = new List<object>
+            //{
+            //    new { path = "/loan/loan-Application", title = "Loan Application", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new { path = "/loan/customer-loan-request", title = "Application List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new { path = "/loan/customer-loan-list", title = "Loan List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new { path = "/loan/instalment", title = "Instalments", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() }
+            //}
+                //});
             }
             if (dataAccessLevel == 3)
             {
@@ -224,7 +237,7 @@ namespace WatchMate_API.Implementation
                     icon = "user",
                     submenu = new List<object>
             {
-                new { path = "custommer/add", title = "Add-Custommer", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "custommer/add", title = "Add-Custommer", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "custommer/list", title = "Custommer List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() }
             }
                 });
@@ -238,8 +251,8 @@ namespace WatchMate_API.Implementation
                     icon = "wallet",
                     submenu = new List<object>
             {
-                new { path = "wallet/recharge", title = "Recharge", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "wallet/recharge-requests", title = "Recharge List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "wallet/recharge", title = "Recharge", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "wallet/recharge-requests", title = "Recharge List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "wallet/withdraw", title = "Withdraw", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "wallet/all-withdraw", title = "Withdraw List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
 
@@ -275,21 +288,21 @@ namespace WatchMate_API.Implementation
             }
                 });
 
-                menu.Add(new
-                {
-                    path = "",
-                    title = "Loan",
-                    iconType = "nzIcon",
-                    iconTheme = "outline",
-                    icon = "stock",
-                    submenu = new List<object>
-            {
-                new { path = "/loan/loan-Application", title = "Loan Application", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "/loan/loan-request-list", title = "Loan Application List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "/loan/all-instalmets", title = "Upcoming Instalments", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "/loan/loan-list", title = "Loan List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() }
-            }
-                });
+            //    menu.Add(new
+            //    {
+            //        path = "",
+            //        title = "Loan",
+            //        iconType = "nzIcon",
+            //        iconTheme = "outline",
+            //        icon = "stock",
+            //        submenu = new List<object>
+            //{
+            //    new { path = "/loan/loan-Application", title = "Loan Application", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new { path = "/loan/loan-request-list", title = "Loan Application List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new { path = "/loan/all-instalmets", title = "Upcoming Instalments", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+            //    new { path = "/loan/loan-list", title = "Loan List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() }
+            //}
+            //    });
 
                 menu.Add(new
                 {
@@ -300,9 +313,11 @@ namespace WatchMate_API.Implementation
                     icon = "setting",
                     submenu = new List<object>
             {
-                new { path = "settings/company", title = "Company", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
-                new { path = "settings/paymentMethod", title = "Payment Method", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "settings/company", title = "Company", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                //new { path = "settings/paymentMethod", title = "Payment Method", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
                 new { path = "settings/recharge-accounts", title = "Recharge Account", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                new { path = "settings/add-video", title = "Add Video", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
+                new { path = "settings/video-list", title = "Video List", iconType = "", icon = "", iconTheme = "", submenu = new List<object>() },
             }
                 });
 
