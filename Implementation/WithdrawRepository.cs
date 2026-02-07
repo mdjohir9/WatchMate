@@ -104,6 +104,20 @@ namespace WatchMate_API.Implementation
             return await query.ToListAsync();
         }
 
+        public async Task<decimal> GetTodayWithdrawTotalAsync(int customerId)
+        {
+            var todayStart = DateTime.Today; // midnight local
+            var todayEnd = todayStart.AddDays(1);
+
+            var total = await _dbContext.Withdraw
+                .Where(w => w.CustomerId == customerId
+                         && w.RequestedDate >= todayStart
+                         && w.RequestedDate < todayEnd
+                         && w.IsApproved != false)
+                .SumAsync(w => (decimal?)w.Amount ?? 0);
+
+            return total;
+        }
 
     }
 }

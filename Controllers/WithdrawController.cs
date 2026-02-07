@@ -103,19 +103,67 @@ namespace Loan_API.Controllers
                 }
 
                 // 👉 Step 1: Get customer's current balance
+                var rule = await _unitOfWork.WithdrawRule.GetActiveRuleAsync();
 
+                if (rule == null)
+                {
+                    return BadRequest(new { StatusCode = 400, message = "Withdraw rule not configured." });
+                }
+
+                // 👉 Step 2: Check amount against rule
+                if (withdrawDto.Amount < rule.MinAmount)
+                {
+                    return BadRequest(new { StatusCode = 400, message = $"Minimum withdraw amount is {rule.MinAmount}." });
+                }
+
+                if (withdrawDto.Amount > rule.MaxAmount)
+                {
+                    return BadRequest(new { StatusCode = 400, message = $"Maximum withdraw amount is {rule.MaxAmount}." });
+                }
+
+                // 👉 Step 3: Check daily limit
+                if (rule.DailyLimit.HasValue)
+                {
+                    var today = DateTime.Now;
+
+                    var todayTotal = await _unitOfWork.Withdraw.GetTodayWithdrawTotalAsync(withdrawDto.CustommerID);
+
+                    if (todayTotal + withdrawDto.Amount > rule.DailyLimit.Value)
+                    {
+                        return BadRequest(new
+                        {
+                            StatusCode = 400,
+                            message = $"Daily withdrawal limit exceeded. Allowed: {rule.DailyLimit}, Already used: {todayTotal}"
+                        });
+                    }
+                }
                 var account = _unitOfWork.Account.GetAccountInfoCustomerId(withdrawDto.CustommerID);
 
                 if (account == null)
                 {
                     return NotFound(new { StatusCode = 404, message = "Customer Account not found." });
                 }
-
                 // 👉 Step 2: Check if balance is enough
                 if (account.BalanceAmount < withdrawDto.Amount)
                 {
                     return BadRequest(new { StatusCode = 400, message = "Insufficient balance for withdrawal." });
                 }
+                if (account != null)
+                {
+                    if (account.BalanceAmount < withdrawDto.Amount)
+                    {
+                        return BadRequest(new { StatusCode = 400, Message = "Insufficient balance in customer's account." });
+                    }
+
+                    account.BalanceAmount -= withdrawDto.Amount;
+                    await _unitOfWork.Account.UpdateAsync(account);
+                }
+                else
+                {
+                    return BadRequest(new { StatusCode = 400, Message = "Customer not found." });
+                }
+
+           
 
                 // 👉 Step 3: If balance is enough, create the withdrawal request
                 var withdrawRequest = new Withdraw
@@ -275,20 +323,20 @@ namespace Loan_API.Controllers
 
                 var account = _unitOfWork.Account.GetAccountInfoCustomerId(customerId);
 
-                if (account != null)
-                {
-                    if (account.BalanceAmount < withdraw.Amount)
-                    {
-                        return BadRequest(new { StatusCode = 400, Message = "Insufficient balance in customer's account." });
-                    }
+                //if (account != null)
+                //{
+                //    if (account.BalanceAmount < withdraw.Amount)
+                //    {
+                //        return BadRequest(new { StatusCode = 400, Message = "Insufficient balance in customer's account." });
+                //    }
 
-                    account.BalanceAmount -= withdraw.Amount;
-                    await _unitOfWork.Account.UpdateAsync(account);
-                }
-                else
-                {
-                    return BadRequest(new { StatusCode = 400, Message = "Customer not found." });
-                }
+                //    account.BalanceAmount -= withdraw.Amount;
+                //    await _unitOfWork.Account.UpdateAsync(account);
+                //}
+                //else
+                //{
+                //    return BadRequest(new { StatusCode = 400, Message = "Customer not found." });
+                //}
 
                 var transactionRecord = new Transctions
                 {
@@ -326,31 +374,87 @@ namespace Loan_API.Controllers
         [HttpPut("reject/{id}")]
         public async Task<IActionResult> RejectWithdrawRequest(int id, int userId, string remarks)
         {
-            var withdraw = await _unitOfWork.Withdraw.GetByIdAsync(id);
-            if (withdraw == null)
+            try
             {
-                return NotFound(new { StatusCode = 404, Message = $"Withdraw request with ID {id} not found." });
+                var withdraw = await _unitOfWork.Withdraw.GetByIdAsync(id);
+                if (withdraw == null)
+                {
+                    return NotFound(new { StatusCode = 404, Message = $"Withdraw request with ID {id} not found." });
+                }
+
+                // Already approved? Can't reject anymore
+                if (withdraw.IsApproved == true)
+                {
+                    return BadRequest(new { StatusCode = 400, Message = "Withdraw request already approved." });
+                }
+
+                // Already rejected? No need to process again
+                if (withdraw.IsApproved == false && withdraw.RejectAt != null)
+                {
+                    return BadRequest(new { StatusCode = 400, Message = "Withdraw request already rejected." });
+                }
+
+                // 👉 Refund logic (return money to customer balance)
+                var account = _unitOfWork.Account.GetAccountInfoCustomerId(withdraw.CustomerId);
+                if (account == null)
+                {
+                    return NotFound(new { StatusCode = 404, Message = "Customer account not found." });
+                }
+
+                account.BalanceAmount += withdraw.Amount; // refund back
+                await _unitOfWork.Account.UpdateAsync(account);
+
+                // 👉 Update withdrawal status
+                withdraw.IsApproved = false;
+                withdraw.RejectAt = DateTime.UtcNow;
+                withdraw.RejectBy = userId;
+                withdraw.AdminRemarks = string.IsNullOrEmpty(remarks) ? "Rejected" : remarks;
+
+                await _unitOfWork.Withdraw.UpdateAsync(withdraw);
+
+                // Save everything together
+                await _unitOfWork.Save();
+
+                return Ok(new
+                {
+                    StatusCode = 200,
+                    Message = "Withdraw request rejected and amount refunded successfully."
+                });
             }
-
-            if (withdraw.IsApproved == true)
+            catch (Exception ex)
             {
-                return BadRequest(new { StatusCode = 400, Message = "Withdraw request already approved." });
+                return StatusCode(500, new { StatusCode = 500, Message = "An error occurred while rejecting withdraw.", Error = ex.Message });
             }
-
-            withdraw.IsApproved = false;
-            withdraw.RejectAt = DateTime.UtcNow;
-            withdraw.RejectBy = userId;
-            withdraw.AdminRemarks = string.IsNullOrEmpty(remarks) ? "Rejected" : remarks;
-
-            await _unitOfWork.Withdraw.UpdateAsync(withdraw);
-            await _unitOfWork.Save();
-
-            return Ok(new
-            {
-                StatusCode = 200,
-                Message = "Withdraw request rejected successfully."
-            });
         }
+
+        //[HttpPut("reject/{id}")]
+        //public async Task<IActionResult> RejectWithdrawRequest(int id, int userId, string remarks)
+        //{
+        //    var withdraw = await _unitOfWork.Withdraw.GetByIdAsync(id);
+        //    if (withdraw == null)
+        //    {
+        //        return NotFound(new { StatusCode = 404, Message = $"Withdraw request with ID {id} not found." });
+        //    }
+
+        //    if (withdraw.IsApproved == true)
+        //    {
+        //        return BadRequest(new { StatusCode = 400, Message = "Withdraw request already approved." });
+        //    }
+
+        //    withdraw.IsApproved = false;
+        //    withdraw.RejectAt = DateTime.UtcNow;
+        //    withdraw.RejectBy = userId;
+        //    withdraw.AdminRemarks = string.IsNullOrEmpty(remarks) ? "Rejected" : remarks;
+
+        //    await _unitOfWork.Withdraw.UpdateAsync(withdraw);
+        //    await _unitOfWork.Save();
+
+        //    return Ok(new
+        //    {
+        //        StatusCode = 200,
+        //        Message = "Withdraw request rejected successfully."
+        //    });
+        //}
 
 
     }

@@ -5,9 +5,9 @@ namespace WatchMate_API.Repository
 {
     public interface IWithdrawRepository : IGenericRepository<Withdraw>
     {
-   
         Task<List<WithdrawDetailDTO>> GetAllWithdrawDetailsAsync();
         Task<List<WithdrawDetailDTO>> GetWithdrawDetailsByCustomerIdAsync(int customerId);
+        Task<decimal> GetTodayWithdrawTotalAsync(int customerId);
 
     }
 }

@@ -57,5 +57,11 @@ namespace WatchMate_API.Entities
 
         [ForeignKey(nameof(CustomerId))]
         public CustomerInfo CustomerInfo { get; set; } = null!;
+
+
+        public int? RuleId { get; set; }
+
+        [ForeignKey(nameof(RuleId))]
+        public WithdrawRule? WithdrawRule { get; set; }
     }
 }
